@@ -1,0 +1,133 @@
+╔═══════════════════════════════════════════════════════════════════╗
+║                                                                   ║
+║              ✅ ERROR CORREGIDO - TemplateSyntaxError             ║
+║                                                                   ║
+╚═══════════════════════════════════════════════════════════════════╝
+
+📋 PROBLEMA IDENTIFICADO:
+═══════════════════════════════════════════════════════════════════
+
+Error: jinja2.exceptions.TemplateSyntaxError
+Mensaje: Encountered unknown tag 'endfor'
+
+Causa: Código HTML duplicado en templates/index.html
+
+
+🔍 DETALLES DEL ERROR:
+═══════════════════════════════════════════════════════════════════
+
+Archivo: templates/index.html
+Líneas: 99-106 (duplicadas)
+
+Código problemático encontrado:
+```html
+                        </tbody>
+                    </table>
+                </div>
+                                </td>  ← DUPLICADO
+                            </tr>      ← DUPLICADO
+                            {% endfor %} ← DUPLICADO (causando el error)
+                        </tbody>       ← DUPLICADO
+                    </table>           ← DUPLICADO
+                </div>
+```
+
+Esto causaba que Jinja2 encontrara un {% endfor %} extra sin
+correspondencia, generando el error de sintaxis.
+
+
+✅ SOLUCIÓN APLICADA:
+═══════════════════════════════════════════════════════════════════
+
+1. ✅ Identificado código duplicado en index.html
+2. ✅ Eliminadas líneas duplicadas (99-106)
+3. ✅ Estructura HTML corregida
+4. ✅ Template Jinja2 ahora válido
+
+Código corregido:
+```html
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                    <p class="empty-message">No hay ítems agregados</p>
+                {% endif %}
+            </section>
+```
+
+
+🔧 PASOS PARA VER LA CORRECCIÓN:
+═══════════════════════════════════════════════════════════════════
+
+1. El archivo templates/index.html ya está corregido ✅
+
+2. Flask en modo debug recarga automáticamente
+
+3. Recarga la página en tu navegador:
+   • Presiona F5
+   • O Ctrl + R (Windows)
+   • O Cmd + R (Mac)
+
+4. La página debería cargar correctamente ahora
+
+
+✅ VERIFICACIÓN:
+═══════════════════════════════════════════════════════════════════
+
+[✓] Archivo corregido: templates/index.html
+[✓] Sin código duplicado
+[✓] Estructura Jinja2 válida
+[✓] Tags {% if %}, {% for %}, {% endif %}, {% endfor %} balanceados
+
+
+🎯 RESULTADO ESPERADO:
+═══════════════════════════════════════════════════════════════════
+
+Ahora deberías ver la aplicación funcionando con:
+
+✓ Sección de Personas
+✓ Sección de Ítems con:
+  - Nombre
+  - Cantidad
+  - Precio Unitario
+  - Total
+  - Checkboxes por persona
+✓ Sección de Costos Compartidos
+✓ Resumen de Pagos
+
+
+📊 ESTRUCTURA CORREGIDA:
+═══════════════════════════════════════════════════════════════════
+
+{% if items %}
+    <table>
+        {% for item in items %}
+            <tr>
+                <td>{{ item.name }}</td>
+                {% for person in persons %}
+                    <td>[checkbox]</td>
+                {% endfor %}  ← Cierra loop de personas
+            </tr>
+        {% endfor %}  ← Cierra loop de ítems
+    </table>
+{% else %}
+    <p>No hay ítems</p>
+{% endif %}  ← Cierra if
+
+Todo balanceado correctamente ✅
+
+
+🚀 PRÓXIMO PASO:
+═══════════════════════════════════════════════════════════════════
+
+👉 Recarga http://localhost:5000 en tu navegador
+
+La aplicación debería funcionar perfectamente ahora.
+
+
+═══════════════════════════════════════════════════════════════════
+Fecha: 2025-12-01
+Estado: ✅ CORREGIDO
+═══════════════════════════════════════════════════════════════════
+

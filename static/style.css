@@ -84,6 +84,16 @@ header p {
     flex-wrap: wrap;
 }
 
+.add-item-form input[type="text"] {
+    flex: 2;
+    min-width: 200px;
+}
+
+.add-item-form input[type="number"] {
+    flex: 1;
+    min-width: 100px;
+}
+
 .add-form input[type="text"],
 .add-form input[type="number"] {
     flex: 1;
@@ -221,9 +231,23 @@ header p {
     color: var(--text-dark);
 }
 
+.item-quantity {
+    text-align: center;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.item-unit-price {
+    color: var(--secondary-color);
+    font-weight: 600;
+    text-align: right;
+}
+
 .item-cost {
     color: var(--primary-color);
-    font-weight: 600;
+    font-weight: 700;
+    text-align: right;
+    font-size: 1.05em;
 }
 
 .checkbox-cell {

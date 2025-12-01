@@ -41,9 +41,10 @@
             <!-- Sección de Ítems -->
             <section class="card">
                 <h2>🛒 Ítems de Compra</h2>
-                <form action="{{ url_for('add_item') }}" method="POST" class="add-form">
+                <form action="{{ url_for('add_item') }}" method="POST" class="add-form add-item-form">
                     <input type="text" name="name" placeholder="Nombre del ítem" required>
-                    <input type="number" name="cost" placeholder="Costo" step="0.01" min="0.01" required>
+                    <input type="number" name="quantity" placeholder="Cantidad" min="1" value="1" required>
+                    <input type="number" name="unit_price" placeholder="Precio Unitario" step="0.01" min="0.01" required>
                     <button type="submit" class="btn btn-primary">Agregar</button>
                 </form>
 
@@ -53,7 +54,9 @@
                         <thead>
                             <tr>
                                 <th>Ítem</th>
-                                <th>Costo</th>
+                                <th>Cantidad</th>
+                                <th>Precio Unit.</th>
+                                <th>Total</th>
                                 {% for person in persons %}
                                 <th class="person-header">{{ person.name }}</th>
                                 {% endfor %}
@@ -64,7 +67,9 @@
                             {% for item in items %}
                             <tr>
                                 <td class="item-name">{{ item.name }}</td>
-                                <td class="item-cost">${{ "%.2f"|format(item.cost) }}</td>
+                                <td class="item-quantity">{{ item.quantity }}</td>
+                                <td class="item-unit-price">${{ "%.2f"|format(item.unit_price) }}</td>
+                                <td class="item-cost">${{ "%.2f"|format(item.total_cost) }}</td>
                                 {% for person in persons %}
                                 <td class="checkbox-cell">
                                     <input type="checkbox"

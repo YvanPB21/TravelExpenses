@@ -63,7 +63,8 @@
 ╚════════════════════════════════════════════════════════════════╝
 
    ✅ Agregar/eliminar personas
-   ✅ Agregar ítems con costo
+   ✅ Agregar ítems con cantidad, precio unitario y total
+   ✅ Cálculo automático del total (cantidad × precio unitario)
    ✅ Checkboxes para seleccionar quién participa en cada ítem
    ✅ Costos compartidos que aplican a todos
    ✅ Cálculo automático en tiempo real
@@ -85,7 +86,10 @@
       - Clic en "Agregar"
 
    3. AGREGAR ÍTEMS:
-      - Escribe nombre del ítem y costo
+      - Escribe nombre del ítem
+      - Escribe cantidad (ej: 2)
+      - Escribe precio unitario (ej: 15.50)
+      - El total se calcula automáticamente (cantidad × precio)
       - Clic en "Agregar"
       - Marca los checkboxes de las personas que lo quieren
 
@@ -132,9 +136,9 @@
    1. Agregar: Ana, Juan, María
 
    2. Agregar ítems:
-      - Pizza Grande $30 → ☑ Ana ☑ Juan ☐ María
-      - Ensalada $15 → ☐ Ana ☐ Juan ☑ María
-      - Bebidas $12 → ☑ Ana ☑ Juan ☑ María
+      - Pizza: 2 unidades × $15 = $30 → ☑ Ana ☑ Juan ☐ María
+      - Ensalada: 1 unidad × $15 = $15 → ☐ Ana ☐ Juan ☑ María
+      - Bebidas: 3 unidades × $4 = $12 → ☑ Ana ☑ Juan ☑ María
 
    3. Agregar costo compartido:
       - Delivery $9 (para todos)

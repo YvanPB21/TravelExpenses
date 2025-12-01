@@ -51,12 +51,14 @@ def remove_person(person_id):
 def add_item():
     """Agregar un ítem"""
     name = request.form.get('name', '').strip()
-    cost = request.form.get('cost', 0)
+    quantity = request.form.get('quantity', 1)
+    unit_price = request.form.get('unit_price', 0)
 
     try:
-        cost = float(cost)
-        if name and cost > 0:
-            data_store.add_item(name, cost)
+        quantity = int(quantity)
+        unit_price = float(unit_price)
+        if name and quantity > 0 and unit_price > 0:
+            data_store.add_item(name, quantity, unit_price)
     except ValueError:
         pass
 

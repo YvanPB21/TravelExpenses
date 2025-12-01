@@ -17,8 +17,14 @@ class Item:
     """Representa un ítem de compra individual"""
     id: int
     name: str
-    cost: float
+    quantity: int  # Cantidad de unidades
+    unit_price: float  # Precio por unidad
     person_ids: Set[int] = field(default_factory=set)  # IDs de personas que participan
+
+    @property
+    def total_cost(self) -> float:
+        """Calcula el costo total (cantidad × precio unitario)"""
+        return self.quantity * self.unit_price
 
 
 @dataclass
@@ -64,8 +70,8 @@ class DataStore:
         return None
 
     # Gestión de ítems
-    def add_item(self, name: str, cost: float) -> Item:
-        item = Item(id=self._next_item_id, name=name, cost=cost)
+    def add_item(self, name: str, quantity: int, unit_price: float) -> Item:
+        item = Item(id=self._next_item_id, name=name, quantity=quantity, unit_price=unit_price)
         self.items.append(item)
         self._next_item_id += 1
         return item

@@ -22,14 +22,14 @@ def test_basic_functionality():
 
     # Agregar ítems
     print("\n2. Agregando ítems de compra...")
-    pizza = store.add_item("Pizza", 30.0)
-    print(f"   ✓ {pizza.name}: ${pizza.cost}")
+    pizza = store.add_item("Pizza", 2, 15.0)  # 2 pizzas a $15 cada una = $30
+    print(f"   ✓ {pizza.name}: {pizza.quantity}x ${pizza.unit_price} = ${pizza.total_cost}")
 
-    ensalada = store.add_item("Ensalada", 15.0)
-    print(f"   ✓ {ensalada.name}: ${ensalada.cost}")
+    ensalada = store.add_item("Ensalada", 1, 15.0)  # 1 ensalada a $15 = $15
+    print(f"   ✓ {ensalada.name}: {ensalada.quantity}x ${ensalada.unit_price} = ${ensalada.total_cost}")
 
-    refresco = store.add_item("Refresco", 10.0)
-    print(f"   ✓ {refresco.name}: ${refresco.cost}")
+    refresco = store.add_item("Refresco", 3, 3.33)  # 3 refrescos a $3.33 cada uno ≈ $10
+    print(f"   ✓ {refresco.name}: {refresco.quantity}x ${refresco.unit_price} = ${refresco.total_cost:.2f}")
 
     # Asignar personas a ítems
     print("\n3. Asignando personas a ítems...")

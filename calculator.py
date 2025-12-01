@@ -34,7 +34,7 @@ class BillCalculator:
         # Calcular costos de ítems individuales
         for item in self.data_store.items:
             if len(item.person_ids) > 0:
-                cost_per_person = item.cost / len(item.person_ids)
+                cost_per_person = item.total_cost / len(item.person_ids)
                 for person_id in item.person_ids:
                     if person_id in totals:
                         totals[person_id]['items_total'] += cost_per_person
@@ -58,7 +58,9 @@ class BillCalculator:
 
     def get_grand_total(self) -> float:
         """Calcula el total general de todos los gastos"""
-        items_total = sum(item.cost for item in self.data_store.items)
+        items_total = sum(item.total_cost for item in self.data_store.items)
+        shared_total = sum(sc.cost for sc in self.data_store.shared_costs)
+        return items_total + shared_total
         shared_total = sum(sc.cost for sc in self.data_store.shared_costs)
         return items_total + shared_total
 
