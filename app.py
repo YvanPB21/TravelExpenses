@@ -158,7 +158,35 @@ def toggle_item_person():
         data_store.set_current_trip(int(trip_id))
         success = data_store.toggle_person_for_item(int(item_id), int(person_id))
         if success:
-            return jsonify({'success': True})
+            # Calcular todos los totales actualizados
+            current_trip = data_store.get_trip(int(trip_id))
+            totals = calculator.calculate_totals()
+            grand_total = calculator.get_grand_total()
+            summary = calculator.get_summary()
+
+            # Totales por día
+            days_totals = {}
+            for day in range(1, current_trip.days + 1):
+                day_totals = calculator.calculate_totals_by_day(day)
+                day_total = calculator.get_day_total(day)
+                days_totals[day] = {
+                    'totals': {str(p.id): {'items_total': day_totals[p.id]['items_total'],
+                                           'shared_total': day_totals[p.id]['shared_total'],
+                                           'total': day_totals[p.id]['total']}
+                              for p in data_store.persons},
+                    'day_total': day_total
+                }
+
+            return jsonify({
+                'success': True,
+                'totals': {str(p.id): {'items_total': totals[p.id]['items_total'],
+                                       'shared_total': totals[p.id]['shared_total'],
+                                       'total': totals[p.id]['total']}
+                          for p in data_store.persons},
+                'grand_total': grand_total,
+                'summary': summary,
+                'days_totals': days_totals
+            })
 
     return jsonify({'success': False}), 400
 

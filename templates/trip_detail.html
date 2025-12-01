@@ -299,48 +299,136 @@
     <script>
         // Sistema de pestañas
         function openDay(evt, dayId) {
-            // Ocultar todo el contenido de pestañas
             var tabContents = document.getElementsByClassName("tab-content");
             for (var i = 0; i < tabContents.length; i++) {
                 tabContents[i].classList.remove("active");
             }
 
-            // Remover clase active de todos los botones
             var tabButtons = document.getElementsByClassName("tab-button");
             for (var i = 0; i < tabButtons.length; i++) {
                 tabButtons[i].classList.remove("active");
             }
 
-            // Mostrar el contenido actual y marcar el botón como activo
             document.getElementById(dayId).classList.add("active");
             evt.currentTarget.classList.add("active");
         }
 
-        // Función para alternar checkbox y recargar página
+        // Alternar checkbox y actualizar SOLO los totales (sin recargar)
         async function togglePersonItem(itemId, personId, tripId) {
             try {
                 const response = await fetch('{{ url_for("toggle_item_person") }}', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        item_id: itemId,
-                        person_id: personId,
-                        trip_id: tripId
-                    })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ item_id: itemId, person_id: personId, trip_id: tripId })
                 });
 
                 if (response.ok) {
-                    // Recargar la página para mostrar cambios
-                    location.reload();
+                    const data = await response.json();
+                    if (data.success) {
+                        // Actualizar resumen general
+                        updateGeneralSummary(data.totals, data.grand_total, data.summary);
+
+                        // Actualizar totales de cada día
+                        if (data.days_totals) {
+                            updateDaysSummaries(data.days_totals);
+                        }
+                    } else {
+                        location.reload();
+                    }
                 } else {
-                    console.error('Error al actualizar');
                     location.reload();
                 }
             } catch (error) {
                 console.error('Error:', error);
                 location.reload();
+            }
+        }
+
+        // Actualizar resumen general
+        function updateGeneralSummary(totals, grandTotal, summary) {
+            // Actualizar tabla de totales
+            for (const [personId, amounts] of Object.entries(totals)) {
+                const cells = {
+                    items: document.getElementById(`items-${personId}`),
+                    shared: document.getElementById(`shared-${personId}`),
+                    total: document.getElementById(`total-${personId}`)
+                };
+
+                if (cells.items) cells.items.textContent = `$${amounts.items_total.toFixed(2)}`;
+                if (cells.shared) cells.shared.textContent = `$${amounts.shared_total.toFixed(2)}`;
+                if (cells.total) cells.total.textContent = `$${amounts.total.toFixed(2)}`;
+            }
+
+            // Actualizar grand total
+            const grandTotalCell = document.querySelector('.grand-total');
+            if (grandTotalCell) grandTotalCell.textContent = `$${grandTotal.toFixed(2)}`;
+
+            // Actualizar panel de verificación
+            if (summary) {
+                const verificationValues = {
+                    'Total Ítems': summary.total_items,
+                    'Total Compartido': summary.total_shared,
+                    'Total de Gastos': summary.grand_total,
+                    'Total Distribuido': summary.total_distributed,
+                    'Diferencia': summary.difference
+                };
+
+                document.querySelectorAll('.verification-item').forEach(item => {
+                    const label = item.querySelector('.verification-label');
+                    const value = item.querySelector('.verification-value');
+
+                    if (label && value) {
+                        for (const [key, val] of Object.entries(verificationValues)) {
+                            if (label.textContent.includes(key)) {
+                                value.textContent = `$${val.toFixed(2)}`;
+                                if (key === 'Diferencia') {
+                                    value.className = 'verification-value ' + (summary.is_balanced ? 'balanced' : 'unbalanced');
+                                }
+                            }
+                        }
+                    }
+                });
+
+                const panel = document.querySelector('.verification-panel');
+                if (panel) panel.className = 'verification-panel ' + (summary.is_balanced ? 'verified' : 'warning');
+            }
+        }
+
+        // Actualizar resúmenes de cada día
+        function updateDaysSummaries(daysTotals) {
+            for (const [day, dayData] of Object.entries(daysTotals)) {
+                // Actualizar total en la pestaña
+                document.querySelectorAll('.tab-button').forEach(btn => {
+                    if (btn.textContent.includes(`Día ${day}`)) {
+                        const totalSpan = btn.querySelector('.tab-total');
+                        if (totalSpan) totalSpan.textContent = `$${dayData.day_total.toFixed(2)}`;
+                    }
+                });
+
+                // Actualizar tabla de resumen del día
+                const dayContent = document.getElementById(`day${day}`);
+                if (dayContent && dayData.totals) {
+                    const table = dayContent.querySelector('.day-totals-table tbody');
+                    if (table) {
+                        const rows = table.querySelectorAll('tr');
+                        let idx = 0;
+                        for (const [personId, amounts] of Object.entries(dayData.totals)) {
+                            if (rows[idx]) {
+                                const cells = rows[idx].querySelectorAll('td');
+                                if (cells.length >= 4) {
+                                    cells[1].textContent = `$${amounts.items_total.toFixed(2)}`;
+                                    cells[2].textContent = `$${amounts.shared_total.toFixed(2)}`;
+                                    cells[3].textContent = `$${amounts.total.toFixed(2)}`;
+                                }
+                            }
+                            idx++;
+                        }
+                    }
+
+                    // Actualizar total del día en footer
+                    const footer = dayContent.querySelector('.day-grand-total');
+                    if (footer) footer.textContent = `$${dayData.day_total.toFixed(2)}`;
+                }
             }
         }
     </script>

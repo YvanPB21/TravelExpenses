@@ -2,8 +2,10 @@
 Modelos de datos para la aplicación de división de gastos
 """
 from typing import List, Set, Dict
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, asdict
 from datetime import datetime
+import json
+import os
 
 
 @dataclass
@@ -52,6 +54,8 @@ class SharedCost:
 class DataStore:
     """Almacena todos los datos en memoria, organizados por viajes"""
 
+    DATA_FILE = 'split_bill_data.json'
+
     def __init__(self):
         self.trips: List[Trip] = []
         self.current_trip_id: int = None
@@ -61,6 +65,138 @@ class DataStore:
         self._next_person_id = {}  # {trip_id: next_id}
         self._next_item_id = {}
         self._next_shared_cost_id = {}
+
+        # Cargar datos desde archivo si existe
+        self.load_from_file()
+
+    def save_to_file(self):
+        """Guarda todos los datos en un archivo JSON"""
+        try:
+            data = {
+                'trips': [self._trip_to_dict(trip) for trip in self.trips],
+                'current_trip_id': self.current_trip_id,
+                'trip_data': {},
+                '_next_trip_id': self._next_trip_id,
+                '_next_person_id': self._next_person_id,
+                '_next_item_id': self._next_item_id,
+                '_next_shared_cost_id': self._next_shared_cost_id
+            }
+
+            # Serializar trip_data
+            for trip_id, trip_content in self.trip_data.items():
+                data['trip_data'][str(trip_id)] = {
+                    'persons': [self._person_to_dict(p) for p in trip_content['persons']],
+                    'items': [self._item_to_dict(i) for i in trip_content['items']],
+                    'shared_costs': [self._shared_cost_to_dict(sc) for sc in trip_content['shared_costs']]
+                }
+
+            with open(self.DATA_FILE, 'w', encoding='utf-8') as f:
+                json.dump(data, f, indent=2, ensure_ascii=False)
+
+            print(f"✓ Datos guardados en {self.DATA_FILE}")
+        except Exception as e:
+            print(f"✗ Error al guardar datos: {e}")
+
+    def load_from_file(self):
+        """Carga todos los datos desde un archivo JSON"""
+        if not os.path.exists(self.DATA_FILE):
+            print(f"No existe archivo de datos. Iniciando con datos vacíos.")
+            return
+
+        try:
+            with open(self.DATA_FILE, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+
+            # Cargar trips
+            self.trips = [self._dict_to_trip(t) for t in data.get('trips', [])]
+            self.current_trip_id = data.get('current_trip_id')
+            self._next_trip_id = data.get('_next_trip_id', 1)
+            self._next_person_id = data.get('_next_person_id', {})
+            self._next_item_id = data.get('_next_item_id', {})
+            self._next_shared_cost_id = data.get('_next_shared_cost_id', {})
+
+            # Convertir claves de string a int en los diccionarios
+            self._next_person_id = {int(k): v for k, v in self._next_person_id.items()}
+            self._next_item_id = {int(k): v for k, v in self._next_item_id.items()}
+            self._next_shared_cost_id = {int(k): v for k, v in self._next_shared_cost_id.items()}
+
+            # Cargar trip_data
+            self.trip_data = {}
+            for trip_id_str, trip_content in data.get('trip_data', {}).items():
+                trip_id = int(trip_id_str)
+                self.trip_data[trip_id] = {
+                    'persons': [self._dict_to_person(p) for p in trip_content.get('persons', [])],
+                    'items': [self._dict_to_item(i) for i in trip_content.get('items', [])],
+                    'shared_costs': [self._dict_to_shared_cost(sc) for sc in trip_content.get('shared_costs', [])]
+                }
+
+            print(f"✓ Datos cargados desde {self.DATA_FILE} ({len(self.trips)} viajes)")
+        except Exception as e:
+            print(f"✗ Error al cargar datos: {e}")
+            print("Iniciando con datos vacíos.")
+
+    # Métodos auxiliares para serialización
+    def _trip_to_dict(self, trip: Trip) -> dict:
+        return {
+            'id': trip.id,
+            'name': trip.name,
+            'description': trip.description,
+            'days': trip.days,
+            'created_at': trip.created_at.isoformat()
+        }
+
+    def _dict_to_trip(self, data: dict) -> Trip:
+        return Trip(
+            id=data['id'],
+            name=data['name'],
+            description=data.get('description', ''),
+            days=data.get('days', 1),
+            created_at=datetime.fromisoformat(data['created_at'])
+        )
+
+    def _person_to_dict(self, person: Person) -> dict:
+        return {'id': person.id, 'name': person.name}
+
+    def _dict_to_person(self, data: dict) -> Person:
+        return Person(id=data['id'], name=data['name'])
+
+    def _item_to_dict(self, item: Item) -> dict:
+        return {
+            'id': item.id,
+            'name': item.name,
+            'quantity': item.quantity,
+            'unit_price': item.unit_price,
+            'day': item.day,
+            'url': item.url,
+            'person_ids': list(item.person_ids)
+        }
+
+    def _dict_to_item(self, data: dict) -> Item:
+        return Item(
+            id=data['id'],
+            name=data['name'],
+            quantity=data['quantity'],
+            unit_price=data['unit_price'],
+            day=data.get('day', 1),
+            url=data.get('url', ''),
+            person_ids=set(data.get('person_ids', []))
+        )
+
+    def _shared_cost_to_dict(self, sc: SharedCost) -> dict:
+        return {
+            'id': sc.id,
+            'name': sc.name,
+            'cost': sc.cost,
+            'day': sc.day
+        }
+
+    def _dict_to_shared_cost(self, data: dict) -> SharedCost:
+        return SharedCost(
+            id=data['id'],
+            name=data['name'],
+            cost=data['cost'],
+            day=data.get('day', 1)
+        )
 
     # Gestión de viajes
     def add_trip(self, name: str, description: str = "", days: int = 1) -> Trip:
@@ -75,6 +211,7 @@ class DataStore:
         self._next_item_id[trip.id] = 1
         self._next_shared_cost_id[trip.id] = 1
         self._next_trip_id += 1
+        self.save_to_file()  # Guardar cambios
         return trip
 
     def get_trip(self, trip_id: int) -> Trip:
@@ -97,6 +234,7 @@ class DataStore:
                 del self.trip_data[trip_id]
             if self.current_trip_id == trip_id:
                 self.current_trip_id = None
+            self.save_to_file()  # Guardar cambios
             return True
         return False
 
@@ -134,6 +272,7 @@ class DataStore:
         person = Person(id=self._next_person_id[self.current_trip_id], name=name)
         self.persons.append(person)
         self._next_person_id[self.current_trip_id] += 1
+        self.save_to_file()
         return person
 
     def remove_person(self, person_id: int) -> bool:
@@ -143,6 +282,7 @@ class DataStore:
             # Remover de todos los ítems
             for item in self.items:
                 item.person_ids.discard(person_id)
+            self.save_to_file()
             return True
         return False
 
@@ -159,12 +299,14 @@ class DataStore:
         item = Item(id=self._next_item_id[self.current_trip_id], name=name, quantity=quantity, unit_price=unit_price, day=day, url=url)
         self.items.append(item)
         self._next_item_id[self.current_trip_id] += 1
+        self.save_to_file()
         return item
 
     def remove_item(self, item_id: int) -> bool:
         item = self.get_item(item_id)
         if item:
             self.items.remove(item)
+            self.save_to_file()
             return True
         return False
 
@@ -182,6 +324,7 @@ class DataStore:
                 item.person_ids.remove(person_id)
             else:
                 item.person_ids.add(person_id)
+            self.save_to_file()
             return True
         return False
 
@@ -192,12 +335,14 @@ class DataStore:
         shared_cost = SharedCost(id=self._next_shared_cost_id[self.current_trip_id], name=name, cost=cost, day=day)
         self.shared_costs.append(shared_cost)
         self._next_shared_cost_id[self.current_trip_id] += 1
+        self.save_to_file()
         return shared_cost
 
     def remove_shared_cost(self, shared_cost_id: int) -> bool:
         shared_cost = self.get_shared_cost(shared_cost_id)
         if shared_cost:
             self.shared_costs.remove(shared_cost)
+            self.save_to_file()
             return True
         return False
 
@@ -218,4 +363,6 @@ class DataStore:
             self._next_person_id[self.current_trip_id] = 1
             self._next_item_id[self.current_trip_id] = 1
             self._next_shared_cost_id[self.current_trip_id] = 1
+            self.save_to_file()
+
 
