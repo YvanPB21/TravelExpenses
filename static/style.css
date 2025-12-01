@@ -373,10 +373,110 @@ header p {
     font-weight: 600;
 }
 
+.per-day-cell {
+    color: var(--secondary-color);
+    font-weight: 600;
+    font-style: italic;
+}
+
 .total-cell {
     color: var(--primary-color);
     font-weight: 700;
     font-size: 1.2em;
+}
+
+.total-col {
+    text-align: right;
+}
+
+.totals-table tbody td.total-cell {
+    text-align: right;
+}
+
+/* Panel de Verificación */
+.verification-panel {
+    margin-top: 30px;
+    padding: 20px;
+    border-radius: 10px;
+    border: 3px solid;
+}
+
+.verification-panel.verified {
+    background: #e8f5e9;
+    border-color: var(--success-color);
+}
+
+.verification-panel.warning {
+    background: #fff3e0;
+    border-color: var(--warning-color);
+}
+
+.verification-panel h3 {
+    margin: 0 0 15px 0;
+    font-size: 1.3em;
+}
+
+.verification-details {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.verification-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.verification-item.final {
+    border-bottom: none;
+    border-top: 2px solid rgba(0, 0, 0, 0.2);
+    padding-top: 15px;
+    margin-top: 10px;
+    font-weight: 700;
+    font-size: 1.1em;
+}
+
+.verification-label {
+    color: var(--text-dark);
+    font-weight: 600;
+}
+
+.verification-value {
+    font-weight: 700;
+    font-size: 1.1em;
+}
+
+.verification-value.total-highlight {
+    color: var(--secondary-color);
+    font-size: 1.2em;
+}
+
+.verification-value.balanced {
+    color: var(--success-color);
+}
+
+.verification-value.unbalanced {
+    color: var(--danger-color);
+}
+
+.verification-message {
+    margin-top: 15px;
+    padding: 12px;
+    border-radius: 5px;
+    font-weight: 600;
+}
+
+.verification-message.success {
+    background: #c8e6c9;
+    color: #2e7d32;
+}
+
+.verification-message.error {
+    background: #ffcdd2;
+    color: #c62828;
 }
 
 .total-col {
@@ -411,10 +511,168 @@ header p {
     padding: 20px;
 }
 
+/* Sistema de Pestañas */
+.tabs {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid var(--border-color);
+    overflow-x: auto;
+}
+
+.tab-button {
+    background: #f5f5f5;
+    border: none;
+    border-bottom: 3px solid transparent;
+    padding: 12px 20px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s;
+    white-space: nowrap;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.tab-button:hover {
+    background: #e0e0e0;
+}
+
+.tab-button.active {
+    background: white;
+    border-bottom-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.tab-total {
+    font-size: 0.85em;
+    color: var(--text-light);
+    font-weight: 500;
+}
+
+.tab-button.active .tab-total {
+    color: var(--primary-color);
+}
+
+.tab-content {
+    display: none;
+    animation: fadeIn 0.3s;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Secciones de día */
+.day-section {
+    margin-bottom: 30px;
+    padding: 20px;
+    background: #fafafa;
+    border-radius: 8px;
+}
+
+.day-section h4 {
+    margin: 0 0 15px 0;
+    color: var(--text-dark);
+    font-size: 1.2em;
+}
+
+.day-summary {
+    margin-top: 30px;
+    padding: 20px;
+    background: linear-gradient(135deg, #e8f5e9, #e3f2fd);
+    border-radius: 8px;
+}
+
+.day-summary h4 {
+    margin: 0 0 15px 0;
+    color: var(--primary-color);
+}
+
+.day-totals-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.day-totals-table th,
+.day-totals-table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.day-totals-table th {
+    background: var(--secondary-color);
+    color: white;
+    font-weight: 600;
+}
+
+.day-total-cell {
+    color: var(--primary-color);
+    font-weight: 700;
+    font-size: 1.1em;
+}
+
+.day-totals-table tfoot {
+    background: rgba(76, 175, 80, 0.2);
+}
+
+.day-grand-total {
+    color: var(--primary-color);
+    font-weight: 700;
+    font-size: 1.2em;
+}
+
 /* Acciones generales */
 .actions-section {
     text-align: center;
     margin-top: 30px;
+}
+
+/* Notificación toast */
+.toast-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: var(--success-color);
+    color: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 9999;
+    animation: slideIn 0.3s ease-out;
+    display: none;
+}
+
+.toast-notification.show {
+    display: block;
+}
+
+.toast-notification.error {
+    background: var(--danger-color);
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(400px);
+        opacity: 0;
+    }
 }
 
 /* Breadcrumb */
@@ -433,10 +691,20 @@ header p {
     color: var(--primary-color);
 }
 
-.trip-date-header {
-    opacity: 0.8;
-    font-size: 0.9em;
-    margin-top: 5px;
+.trip-info-header {
+    opacity: 0.9;
+    font-size: 0.95em;
+    margin-top: 10px;
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.trip-date-header, .trip-days-header {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 5px 15px;
+    border-radius: 20px;
 }
 
 /* Estilos para viajes */
@@ -450,8 +718,27 @@ header p {
     min-width: 250px;
 }
 
+.days-input {
+    flex: 0.5;
+    min-width: 80px;
+}
+
 .description-input {
     flex: 1.5;
+}
+
+.trip-info {
+    margin: 10px 0;
+}
+
+.trip-days {
+    display: inline-block;
+    background: #e3f2fd;
+    color: var(--secondary-color);
+    padding: 4px 12px;
+    border-radius: 15px;
+    font-size: 0.9em;
+    font-weight: 600;
 }
 
 .trips-grid {

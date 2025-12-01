@@ -12,6 +12,7 @@ class Trip:
     id: int
     name: str
     description: str = ""
+    days: int = 1  # Número de días del viaje
     created_at: datetime = field(default_factory=datetime.now)
 
 
@@ -29,6 +30,7 @@ class Item:
     name: str
     quantity: int  # Cantidad de unidades
     unit_price: float  # Precio por unidad
+    day: int = 1  # Día del viaje al que pertenece este ítem
     url: str = ""  # URL del producto (opcional)
     person_ids: Set[int] = field(default_factory=set)  # IDs de personas que participan
 
@@ -44,6 +46,7 @@ class SharedCost:
     id: int
     name: str
     cost: float
+    day: int = 1  # Día del viaje al que pertenece este costo
 
 
 class DataStore:
@@ -60,8 +63,8 @@ class DataStore:
         self._next_shared_cost_id = {}
 
     # Gestión de viajes
-    def add_trip(self, name: str, description: str = "") -> Trip:
-        trip = Trip(id=self._next_trip_id, name=name, description=description)
+    def add_trip(self, name: str, description: str = "", days: int = 1) -> Trip:
+        trip = Trip(id=self._next_trip_id, name=name, description=description, days=days)
         self.trips.append(trip)
         self.trip_data[trip.id] = {
             'persons': [],
@@ -116,6 +119,14 @@ class DataStore:
             return self.trip_data[self.current_trip_id]['shared_costs']
         return []
 
+    def get_items_by_day(self, day: int) -> List[Item]:
+        """Obtiene los ítems de un día específico"""
+        return [item for item in self.items if item.day == day]
+
+    def get_shared_costs_by_day(self, day: int) -> List[SharedCost]:
+        """Obtiene los costos compartidos de un día específico"""
+        return [sc for sc in self.shared_costs if sc.day == day]
+
     # Gestión de personas
     def add_person(self, name: str) -> Person:
         if not self.current_trip_id:
@@ -142,10 +153,10 @@ class DataStore:
         return None
 
     # Gestión de ítems
-    def add_item(self, name: str, quantity: int, unit_price: float, url: str = "") -> Item:
+    def add_item(self, name: str, quantity: int, unit_price: float, day: int = 1, url: str = "") -> Item:
         if not self.current_trip_id:
             return None
-        item = Item(id=self._next_item_id[self.current_trip_id], name=name, quantity=quantity, unit_price=unit_price, url=url)
+        item = Item(id=self._next_item_id[self.current_trip_id], name=name, quantity=quantity, unit_price=unit_price, day=day, url=url)
         self.items.append(item)
         self._next_item_id[self.current_trip_id] += 1
         return item
@@ -175,10 +186,10 @@ class DataStore:
         return False
 
     # Gestión de costos compartidos
-    def add_shared_cost(self, name: str, cost: float) -> SharedCost:
+    def add_shared_cost(self, name: str, cost: float, day: int = 1) -> SharedCost:
         if not self.current_trip_id:
             return None
-        shared_cost = SharedCost(id=self._next_shared_cost_id[self.current_trip_id], name=name, cost=cost)
+        shared_cost = SharedCost(id=self._next_shared_cost_id[self.current_trip_id], name=name, cost=cost, day=day)
         self.shared_costs.append(shared_cost)
         self._next_shared_cost_id[self.current_trip_id] += 1
         return shared_cost

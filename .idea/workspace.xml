@@ -4,11 +4,19 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="63bd1a63-815d-47a9-9e63-ea284e6542b9" name="Changes" comment="Add URL field to items for product links&#10;&#10;- Introduced an optional URL field in the item model to store product links.&#10;- Updated the item addition route to accept and process the URL.&#10;- Enhanced the HTML form to include a URL input and modified the item display table to show a clickable link.&#10;- Adjusted styles for the new URL input and link button.&#10;- Updated tests to cover scenarios with and without URLs.">
+    <list default="true" id="63bd1a63-815d-47a9-9e63-ea284e6542b9" name="Changes" comment="Implement multi-day support in Split Bill application&#10;&#10;- Added functionality to specify the number of days for each trip.&#10;- Updated models to include a days field for trips, items, and shared costs.&#10;- Enhanced item and shared cost management to associate them with specific days.&#10;- Modified the user interface to allow input of days and display daily summaries.&#10;- Implemented calculations for totals by day and overall trip summary.&#10;- Introduced a verification panel to ensure total expenses match distributed amounts.">
+      <change afterPath="$PROJECT_DIR$/DIAS_Y_VERIFICACION.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/INSTRUCCIONES_FINALES.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/PESTANAS_POR_DIA.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/START.bat" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/run_server.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/calculator.py" beforeDir="false" afterPath="$PROJECT_DIR$/calculator.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/static/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/style.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/trip_detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/trip_detail.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/trips.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/trips.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -65,7 +73,7 @@
       <option name="presentableId" value="Default" />
       <updated>1764609161738</updated>
       <workItem from="1764609172512" duration="145000" />
-      <workItem from="1764609346949" duration="3356000" />
+      <workItem from="1764609346949" duration="8086000" />
     </task>
     <task id="LOCAL-00001" summary="Add initial implementation of Split Bill application with Flask&#10;&#10;- Create main application file (app.py) for managing expenses&#10;- Implement data models for persons, items, and shared costs (models.py)&#10;- Add calculation logic for expense distribution (calculator.py)&#10;- Develop HTML interface for user interaction (index.html)&#10;- Include CSS for styling (style.css)&#10;- Set up instructions and quickstart guide (INSTRUCCIONES.txt, QUICKSTART.md)&#10;- Add .gitignore for environment files and IDE settings&#10;- Implement basic test script for functionality verification (test.py)">
       <option name="closed" value="true" />
@@ -91,7 +99,15 @@
       <option name="project" value="LOCAL" />
       <updated>1764611990506</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Implement multi-trip support in Split Bill application&#10;&#10;- Added functionality to create and manage multiple trips, each with its own participants, items, and shared costs.&#10;- Updated routes to handle trip-specific actions, including adding and removing trips, and managing items and persons within a trip.&#10;- Introduced new templates for trip listing and trip details, enhancing user navigation and experience.&#10;- Refactored data models to accommodate trip data organization.">
+      <option name="closed" value="true" />
+      <created>1764612904852</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1764612904852</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -101,7 +117,9 @@
     <MESSAGE value="Add initial implementation of Split Bill application with Flask&#10;&#10;- Create main application file (app.py) for managing expenses&#10;- Implement data models for persons, items, and shared costs (models.py)&#10;- Add calculation logic for expense distribution (calculator.py)&#10;- Develop HTML interface for user interaction (index.html)&#10;- Include CSS for styling (style.css)&#10;- Set up instructions and quickstart guide (INSTRUCCIONES.txt, QUICKSTART.md)&#10;- Add .gitignore for environment files and IDE settings&#10;- Implement basic test script for functionality verification (test.py)" />
     <MESSAGE value="Update item management to include quantity and unit price&#10;&#10;- Modified Item model to add quantity and unit_price fields, and total_cost property for automatic calculation.&#10;- Updated add_item route to accept quantity and unit price, with validation for positive values.&#10;- Adjusted calculation logic to use total_cost instead of cost for expense distribution.&#10;- Enhanced HTML form to include fields for quantity and unit price, and updated item display table accordingly.&#10;- Revised tests to reflect new item structure and ensure correct calculations.&#10;- Updated documentation to reflect these changes and provide usage examples." />
     <MESSAGE value="Add URL field to items for product links&#10;&#10;- Introduced an optional URL field in the item model to store product links.&#10;- Updated the item addition route to accept and process the URL.&#10;- Enhanced the HTML form to include a URL input and modified the item display table to show a clickable link.&#10;- Adjusted styles for the new URL input and link button.&#10;- Updated tests to cover scenarios with and without URLs." />
-    <option name="LAST_COMMIT_MESSAGE" value="Add URL field to items for product links&#10;&#10;- Introduced an optional URL field in the item model to store product links.&#10;- Updated the item addition route to accept and process the URL.&#10;- Enhanced the HTML form to include a URL input and modified the item display table to show a clickable link.&#10;- Adjusted styles for the new URL input and link button.&#10;- Updated tests to cover scenarios with and without URLs." />
+    <MESSAGE value="Implement multi-trip support in Split Bill application&#10;&#10;- Added functionality to create and manage multiple trips, each with its own participants, items, and shared costs.&#10;- Updated routes to handle trip-specific actions, including adding and removing trips, and managing items and persons within a trip.&#10;- Introduced new templates for trip listing and trip details, enhancing user navigation and experience.&#10;- Refactored data models to accommodate trip data organization." />
+    <MESSAGE value="Implement multi-day support in Split Bill application&#10;&#10;- Added functionality to specify the number of days for each trip.&#10;- Updated models to include a days field for trips, items, and shared costs.&#10;- Enhanced item and shared cost management to associate them with specific days.&#10;- Modified the user interface to allow input of days and display daily summaries.&#10;- Implemented calculations for totals by day and overall trip summary.&#10;- Introduced a verification panel to ensure total expenses match distributed amounts." />
+    <option name="LAST_COMMIT_MESSAGE" value="Implement multi-day support in Split Bill application&#10;&#10;- Added functionality to specify the number of days for each trip.&#10;- Updated models to include a days field for trips, items, and shared costs.&#10;- Enhanced item and shared cost management to associate them with specific days.&#10;- Modified the user interface to allow input of days and display daily summaries.&#10;- Implemented calculations for totals by day and overall trip summary.&#10;- Introduced a verification panel to ensure total expenses match distributed amounts." />
   </component>
   <component name="github-copilot-workspace">
     <instructionFileLocations>
