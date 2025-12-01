@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Viajes - Split Bill</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>✈️ Mis Viajes y Gastos Compartidos</h1>
+            <p>Crea un viaje o evento para comenzar a dividir gastos</p>
+        </header>
+
+        <div class="main-content">
+            <!-- Crear Nuevo Viaje -->
+            <section class="card trip-create-card">
+                <h2>➕ Crear Nuevo Viaje</h2>
+                <form action="{{ url_for('add_trip') }}" method="POST" class="add-form trip-form">
+                    <input type="text" name="name" placeholder="Nombre del viaje (ej: Viaje a la Playa 2025)" required>
+                    <input type="text" name="description" placeholder="Descripción (opcional)" class="description-input">
+                    <button type="submit" class="btn btn-primary">Crear Viaje</button>
+                </form>
+            </section>
+
+            <!-- Lista de Viajes -->
+            <section class="card">
+                <h2>📋 Mis Viajes</h2>
+
+                {% if trips %}
+                <div class="trips-grid">
+                    {% for trip in trips %}
+                    <div class="trip-card">
+                        <div class="trip-header">
+                            <h3>{{ trip.name }}</h3>
+                            <span class="trip-date">{{ trip.created_at.strftime('%d/%m/%Y') }}</span>
+                        </div>
+                        {% if trip.description %}
+                        <p class="trip-description">{{ trip.description }}</p>
+                        {% endif %}
+                        <div class="trip-actions">
+                            <a href="{{ url_for('trip_detail', trip_id=trip.id) }}" class="btn btn-success">
+                                📊 Ver Detalles
+                            </a>
+                            <form action="{{ url_for('remove_trip', trip_id=trip.id) }}" method="POST" style="display: inline;" onsubmit="return confirm('¿Estás seguro de eliminar este viaje y todos sus datos?');">
+                                <button type="submit" class="btn btn-danger btn-small">🗑️ Eliminar</button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">✈️</div>
+                    <h3>No tienes viajes creados</h3>
+                    <p>Crea tu primer viaje para comenzar a dividir gastos con tu grupo</p>
+                </div>
+                {% endif %}
+            </section>
+
+            <!-- Información -->
+            <section class="card info-card">
+                <h2>ℹ️ ¿Cómo funciona?</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-number">1</div>
+                        <div class="info-content">
+                            <h4>Crea un Viaje</h4>
+                            <p>Dale un nombre a tu viaje o evento compartido</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-number">2</div>
+                        <div class="info-content">
+                            <h4>Agrega Personas</h4>
+                            <p>Añade a los participantes del viaje</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-number">3</div>
+                        <div class="info-content">
+                            <h4>Registra Gastos</h4>
+                            <p>Agrega ítems y marca quién participa en cada uno</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-number">4</div>
+                        <div class="info-content">
+                            <h4>Divide Automáticamente</h4>
+                            <p>Ve cuánto debe pagar cada persona</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</body>
+</html>
+

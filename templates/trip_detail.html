@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dividir Gastos - Split Bill</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <!-- Breadcrumb -->
+        <div class="breadcrumb">
+            <a href="{{ url_for('index') }}">← Volver a Mis Viajes</a>
+        </div>
+
+        <header>
+            <h1>💰 {{ current_trip.name }}</h1>
+            {% if current_trip.description %}
+            <p>{{ current_trip.description }}</p>
+            {% else %}
+            <p>Gestiona y divide gastos de compras entre varias personas</p>
+            {% endif %}
+            <p class="trip-date-header">Creado el {{ current_trip.created_at.strftime('%d/%m/%Y') }}</p>
+        </header>
+
+        <div class="main-content">
+            <!-- Sección de Personas -->
+            <section class="card">
+                <h2>👥 Personas</h2>
+                <form action="{{ url_for('add_person') }}" method="POST" class="add-form">
+                    <input type="hidden" name="trip_id" value="{{ current_trip.id }}">
+                    <input type="text" name="name" placeholder="Nombre de la persona" required>
+                    <button type="submit" class="btn btn-primary">Agregar</button>
+                </form>
+
+                <div class="persons-list">
+                    {% if persons %}
+                        {% for person in persons %}
+                        <div class="person-item">
+                            <span class="person-name">{{ person.name }}</span>
+                            <form action="{{ url_for('remove_person', trip_id=current_trip.id, person_id=person.id) }}" method="POST" style="display: inline;">
+                                <button type="submit" class="btn btn-danger btn-small">✕</button>
+                            </form>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="empty-message">No hay personas agregadas</p>
+                    {% endif %}
+                </div>
+            </section>
+
+            <!-- Sección de Ítems -->
+            <section class="card">
+                <h2>🛒 Ítems de Compra</h2>
+                <form action="{{ url_for('add_item') }}" method="POST" class="add-form add-item-form">
+                    <input type="hidden" name="trip_id" value="{{ current_trip.id }}">
+                    <input type="text" name="name" placeholder="Nombre del ítem" required>
+                    <input type="number" name="quantity" placeholder="Cantidad" min="1" value="1" required>
+                    <input type="number" name="unit_price" placeholder="Precio Unitario" step="0.01" min="0.01" required>
+                    <input type="url" name="url" placeholder="URL del producto (opcional)" class="url-input">
+                    <button type="submit" class="btn btn-primary">Agregar</button>
+                </form>
+
+                {% if items %}
+                <div class="items-table-container">
+                    <table class="items-table">
+                        <thead>
+                            <tr>
+                                <th>Ítem</th>
+                                <th>Cantidad</th>
+                                <th>Precio Unit.</th>
+                                <th>Total</th>
+                                <th>Enlace</th>
+                                {% for person in persons %}
+                                <th class="person-header">{{ person.name }}</th>
+                                {% endfor %}
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in items %}
+                            <tr>
+                                <td class="item-name">{{ item.name }}</td>
+                                <td class="item-quantity">{{ item.quantity }}</td>
+                                <td class="item-unit-price">${{ "%.2f"|format(item.unit_price) }}</td>
+                                <td class="item-cost">${{ "%.2f"|format(item.total_cost) }}</td>
+                                <td class="item-link">
+                                    {% if item.url %}
+                                    <a href="{{ item.url }}" target="_blank" class="btn-link" title="{{ item.url }}">
+                                        🔗 Ver
+                                    </a>
+                                    {% else %}
+                                    <span class="no-link">-</span>
+                                    {% endif %}
+                                </td>
+                                {% for person in persons %}
+                                <td class="checkbox-cell">
+                                    <input type="checkbox"
+                                           class="person-checkbox"
+                                           data-item-id="{{ item.id }}"
+                                           data-person-id="{{ person.id }}"
+                                           data-trip-id="{{ current_trip.id }}"
+                                           {% if person.id in item.person_ids %}checked{% endif %}
+                                           onchange="togglePersonItem({{ item.id }}, {{ person.id }}, {{ current_trip.id }})">>
+                                </td>
+                                {% endfor %}
+                                <td>
+                                    <form action="{{ url_for('remove_item', trip_id=current_trip.id, item_id=item.id) }}" method="POST" style="display: inline;">
+                                        <button type="submit" class="btn btn-danger btn-small">Eliminar</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                    <p class="empty-message">No hay ítems agregados</p>
+                {% endif %}
+            </section>
+
+            <!-- Sección de Costos Compartidos -->
+            <section class="card">
+                <h2>🤝 Costos Compartidos (para todos)</h2>
+                <form action="{{ url_for('add_shared_cost') }}" method="POST" class="add-form">
+                    <input type="hidden" name="trip_id" value="{{ current_trip.id }}">
+                    <input type="text" name="name" placeholder="Nombre del costo" required>
+                    <input type="number" name="cost" placeholder="Costo" step="0.01" min="0.01" required>
+                    <button type="submit" class="btn btn-success">Agregar</button>
+                </form>
+
+                {% if shared_costs %}
+                <div class="shared-costs-list">
+                    {% for sc in shared_costs %}
+                    <div class="shared-cost-item">
+                        <span class="shared-name">{{ sc.name }}</span>
+                        <span class="shared-cost">${{ "%.2f"|format(sc.cost) }}</span>
+                        <form action="{{ url_for('remove_shared_cost', trip_id=current_trip.id, shared_cost_id=sc.id) }}" method="POST" style="display: inline;">
+                            <button type="submit" class="btn btn-danger btn-small">✕</button>
+                        </form>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                    <p class="empty-message">No hay costos compartidos</p>
+                {% endif %}
+            </section>
+
+            <!-- Resumen de Totales -->
+            <section class="card summary-card">
+                <h2>📊 Resumen de Pagos</h2>
+
+                {% if persons %}
+                <div class="totals-container">
+                    <table class="totals-table">
+                        <thead>
+                            <tr>
+                                <th>Persona</th>
+                                <th>Ítems</th>
+                                <th>Compartido</th>
+                                <th class="total-col">Total a Pagar</th>
+                            </tr>
+                        </thead>
+                        <tbody id="totals-body">
+                            {% for person in persons %}
+                            <tr>
+                                <td class="person-name-cell">{{ person.name }}</td>
+                                <td class="amount-cell" id="items-{{ person.id }}">${{ "%.2f"|format(totals[person.id].items_total) }}</td>
+                                <td class="amount-cell" id="shared-{{ person.id }}">${{ "%.2f"|format(totals[person.id].shared_total) }}</td>
+                                <td class="total-cell" id="total-{{ person.id }}">${{ "%.2f"|format(totals[person.id].total) }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr class="grand-total-row">
+                                <td colspan="3"><strong>Total General:</strong></td>
+                                <td class="grand-total">${{ "%.2f"|format(grand_total) }}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                {% else %}
+                    <p class="empty-message">Agrega personas para ver el resumen</p>
+                {% endif %}
+            </section>
+
+            <!-- Acciones Generales -->
+            <section class="actions-section">
+                <form action="{{ url_for('clear_all', trip_id=current_trip.id) }}" method="POST" onsubmit="return confirm('¿Estás seguro de que quieres limpiar todos los datos de este viaje?');">
+                    <button type="submit" class="btn btn-warning">🗑️ Limpiar Todo</button>
+                </form>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        // Función para alternar checkbox y actualizar totales
+        async function togglePersonItem(itemId, personId, tripId) {
+            try {
+                const response = await fetch('{{ url_for("toggle_item_person") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        item_id: itemId,
+                        person_id: personId,
+                        trip_id: tripId
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        // Actualizar los totales en la tabla
+                        updateTotals(data.totals);
+                    }
+                } else {
+                    console.error('Error al actualizar');
+                    // Recargar la página si hay error
+                    location.reload();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                location.reload();
+            }
+        }
+
+        // Actualizar los valores de los totales sin recargar la página
+        function updateTotals(totals) {
+            for (const [personId, amounts] of Object.entries(totals)) {
+                const itemsCell = document.getElementById(`items-${personId}`);
+                const sharedCell = document.getElementById(`shared-${personId}`);
+                const totalCell = document.getElementById(`total-${personId}`);
+
+                if (itemsCell) itemsCell.textContent = `$${amounts.items_total.toFixed(2)}`;
+                if (sharedCell) sharedCell.textContent = `$${amounts.shared_total.toFixed(2)}`;
+                if (totalCell) totalCell.textContent = `$${amounts.total.toFixed(2)}`;
+            }
+        }
+    </script>
+</body>
+</html>
+
+

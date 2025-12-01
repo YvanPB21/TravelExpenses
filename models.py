@@ -1,8 +1,18 @@
 """
 Modelos de datos para la aplicación de división de gastos
 """
-from typing import List, Set
+from typing import List, Set, Dict
 from dataclasses import dataclass, field
+from datetime import datetime
+
+
+@dataclass
+class Trip:
+    """Representa un viaje o evento de gastos compartidos"""
+    id: int
+    name: str
+    description: str = ""
+    created_at: datetime = field(default_factory=datetime.now)
 
 
 @dataclass
@@ -37,21 +47,82 @@ class SharedCost:
 
 
 class DataStore:
-    """Almacena todos los datos en memoria"""
+    """Almacena todos los datos en memoria, organizados por viajes"""
 
     def __init__(self):
-        self.persons: List[Person] = []
-        self.items: List[Item] = []
-        self.shared_costs: List[SharedCost] = []
-        self._next_person_id = 1
-        self._next_item_id = 1
-        self._next_shared_cost_id = 1
+        self.trips: List[Trip] = []
+        self.current_trip_id: int = None
+        # Datos por viaje: {trip_id: {'persons': [], 'items': [], 'shared_costs': []}}
+        self.trip_data: Dict[int, Dict] = {}
+        self._next_trip_id = 1
+        self._next_person_id = {}  # {trip_id: next_id}
+        self._next_item_id = {}
+        self._next_shared_cost_id = {}
+
+    # Gestión de viajes
+    def add_trip(self, name: str, description: str = "") -> Trip:
+        trip = Trip(id=self._next_trip_id, name=name, description=description)
+        self.trips.append(trip)
+        self.trip_data[trip.id] = {
+            'persons': [],
+            'items': [],
+            'shared_costs': []
+        }
+        self._next_person_id[trip.id] = 1
+        self._next_item_id[trip.id] = 1
+        self._next_shared_cost_id[trip.id] = 1
+        self._next_trip_id += 1
+        return trip
+
+    def get_trip(self, trip_id: int) -> Trip:
+        for trip in self.trips:
+            if trip.id == trip_id:
+                return trip
+        return None
+
+    def set_current_trip(self, trip_id: int) -> bool:
+        if self.get_trip(trip_id):
+            self.current_trip_id = trip_id
+            return True
+        return False
+
+    def remove_trip(self, trip_id: int) -> bool:
+        trip = self.get_trip(trip_id)
+        if trip:
+            self.trips.remove(trip)
+            if trip_id in self.trip_data:
+                del self.trip_data[trip_id]
+            if self.current_trip_id == trip_id:
+                self.current_trip_id = None
+            return True
+        return False
+
+    # Propiedades de acceso rápido al viaje actual
+    @property
+    def persons(self) -> List[Person]:
+        if self.current_trip_id and self.current_trip_id in self.trip_data:
+            return self.trip_data[self.current_trip_id]['persons']
+        return []
+
+    @property
+    def items(self) -> List[Item]:
+        if self.current_trip_id and self.current_trip_id in self.trip_data:
+            return self.trip_data[self.current_trip_id]['items']
+        return []
+
+    @property
+    def shared_costs(self) -> List[SharedCost]:
+        if self.current_trip_id and self.current_trip_id in self.trip_data:
+            return self.trip_data[self.current_trip_id]['shared_costs']
+        return []
 
     # Gestión de personas
     def add_person(self, name: str) -> Person:
-        person = Person(id=self._next_person_id, name=name)
+        if not self.current_trip_id:
+            return None
+        person = Person(id=self._next_person_id[self.current_trip_id], name=name)
         self.persons.append(person)
-        self._next_person_id += 1
+        self._next_person_id[self.current_trip_id] += 1
         return person
 
     def remove_person(self, person_id: int) -> bool:
@@ -72,9 +143,11 @@ class DataStore:
 
     # Gestión de ítems
     def add_item(self, name: str, quantity: int, unit_price: float, url: str = "") -> Item:
-        item = Item(id=self._next_item_id, name=name, quantity=quantity, unit_price=unit_price, url=url)
+        if not self.current_trip_id:
+            return None
+        item = Item(id=self._next_item_id[self.current_trip_id], name=name, quantity=quantity, unit_price=unit_price, url=url)
         self.items.append(item)
-        self._next_item_id += 1
+        self._next_item_id[self.current_trip_id] += 1
         return item
 
     def remove_item(self, item_id: int) -> bool:
@@ -103,9 +176,11 @@ class DataStore:
 
     # Gestión de costos compartidos
     def add_shared_cost(self, name: str, cost: float) -> SharedCost:
-        shared_cost = SharedCost(id=self._next_shared_cost_id, name=name, cost=cost)
+        if not self.current_trip_id:
+            return None
+        shared_cost = SharedCost(id=self._next_shared_cost_id[self.current_trip_id], name=name, cost=cost)
         self.shared_costs.append(shared_cost)
-        self._next_shared_cost_id += 1
+        self._next_shared_cost_id[self.current_trip_id] += 1
         return shared_cost
 
     def remove_shared_cost(self, shared_cost_id: int) -> bool:
@@ -122,11 +197,14 @@ class DataStore:
         return None
 
     def clear_all(self):
-        """Limpia todos los datos"""
-        self.persons.clear()
-        self.items.clear()
-        self.shared_costs.clear()
-        self._next_person_id = 1
-        self._next_item_id = 1
-        self._next_shared_cost_id = 1
+        """Limpia todos los datos del viaje actual"""
+        if self.current_trip_id and self.current_trip_id in self.trip_data:
+            self.trip_data[self.current_trip_id] = {
+                'persons': [],
+                'items': [],
+                'shared_costs': []
+            }
+            self._next_person_id[self.current_trip_id] = 1
+            self._next_item_id[self.current_trip_id] = 1
+            self._next_shared_cost_id[self.current_trip_id] = 1
 
