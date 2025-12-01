@@ -138,3 +138,38 @@ class BillCalculator:
             'is_balanced': difference < 0.01
         }
 
+    def calculate_payments_summary(self) -> Dict[int, Dict[str, float]]:
+        """
+        Calcula cuánto pagó cada persona y cuánto se le debe devolver
+
+        Returns:
+            Dict con {person_id: {
+                'total_paid': float,      # Lo que pagó
+                'total_owes': float,      # Lo que debe (su consumo)
+                'balance': float          # Positivo = le deben, Negativo = debe
+            }}
+        """
+        totals = self.calculate_totals()
+        payments = {}
+
+        for person in self.data_store.persons:
+            # Calcular lo que pagó esta persona
+            total_paid = 0.0
+            for item in self.data_store.items:
+                if item.paid_by_person_id == person.id:
+                    total_paid += item.total_cost
+
+            # Lo que debe (su consumo total)
+            total_owes = totals.get(person.id, {}).get('total', 0.0)
+
+            # Balance: positivo = le deben, negativo = debe
+            balance = total_paid - total_owes
+
+            payments[person.id] = {
+                'total_paid': total_paid,
+                'total_owes': total_owes,
+                'balance': balance
+            }
+
+        return payments
+

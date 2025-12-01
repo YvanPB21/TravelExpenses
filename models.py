@@ -35,6 +35,7 @@ class Item:
     day: int = 1  # Día del viaje al que pertenece este ítem
     url: str = ""  # URL del producto (opcional)
     person_ids: Set[int] = field(default_factory=set)  # IDs de personas que participan
+    paid_by_person_id: int = None  # ID de la persona que pagó este ítem
 
     @property
     def total_cost(self) -> float:
@@ -168,7 +169,8 @@ class DataStore:
             'unit_price': item.unit_price,
             'day': item.day,
             'url': item.url,
-            'person_ids': list(item.person_ids)
+            'person_ids': list(item.person_ids),
+            'paid_by_person_id': item.paid_by_person_id
         }
 
     def _dict_to_item(self, data: dict) -> Item:
@@ -179,7 +181,8 @@ class DataStore:
             unit_price=data['unit_price'],
             day=data.get('day', 1),
             url=data.get('url', ''),
-            person_ids=set(data.get('person_ids', []))
+            person_ids=set(data.get('person_ids', [])),
+            paid_by_person_id=data.get('paid_by_person_id')
         )
 
     def _shared_cost_to_dict(self, sc: SharedCost) -> dict:
@@ -293,10 +296,11 @@ class DataStore:
         return None
 
     # Gestión de ítems
-    def add_item(self, name: str, quantity: int, unit_price: float, day: int = 1, url: str = "") -> Item:
+    def add_item(self, name: str, quantity: int, unit_price: float, day: int = 1, url: str = "", paid_by_person_id: int = None) -> Item:
         if not self.current_trip_id:
             return None
-        item = Item(id=self._next_item_id[self.current_trip_id], name=name, quantity=quantity, unit_price=unit_price, day=day, url=url)
+        item = Item(id=self._next_item_id[self.current_trip_id], name=name, quantity=quantity,
+                   unit_price=unit_price, day=day, url=url, paid_by_person_id=paid_by_person_id)
         self.items.append(item)
         self._next_item_id[self.current_trip_id] += 1
         self.save_to_file()
@@ -306,6 +310,28 @@ class DataStore:
         item = self.get_item(item_id)
         if item:
             self.items.remove(item)
+            self.save_to_file()
+            return True
+        return False
+
+    def update_item(self, item_id: int, name: str = None, quantity: int = None,
+                   unit_price: float = None, day: int = None, url: str = None,
+                   paid_by_person_id: int = None) -> bool:
+        """Actualiza un ítem existente"""
+        item = self.get_item(item_id)
+        if item:
+            if name is not None:
+                item.name = name
+            if quantity is not None:
+                item.quantity = quantity
+            if unit_price is not None:
+                item.unit_price = unit_price
+            if day is not None:
+                item.day = day
+            if url is not None:
+                item.url = url
+            if paid_by_person_id is not None:
+                item.paid_by_person_id = paid_by_person_id
             self.save_to_file()
             return True
         return False

@@ -1,15 +1,91 @@
 {
-  "trips": [],
-  "current_trip_id": null,
-  "trip_data": {},
-  "_next_trip_id": 2,
+  "trips": [
+    {
+      "id": 2,
+      "name": "asdf",
+      "description": "",
+      "days": 2,
+      "created_at": "2025-12-01T15:32:07.354727"
+    }
+  ],
+  "current_trip_id": 2,
+  "trip_data": {
+    "2": {
+      "persons": [
+        {
+          "id": 2,
+          "name": "fer"
+        },
+        {
+          "id": 3,
+          "name": "yvan"
+        },
+        {
+          "id": 4,
+          "name": "zinho"
+        }
+      ],
+      "items": [
+        {
+          "id": 1,
+          "name": "carne",
+          "quantity": 1,
+          "unit_price": 400.0,
+          "day": 1,
+          "url": "",
+          "person_ids": [
+            3,
+            4
+          ],
+          "paid_by_person_id": 4
+        },
+        {
+          "id": 2,
+          "name": "pollo",
+          "quantity": 1,
+          "unit_price": 230.0,
+          "day": 1,
+          "url": "",
+          "person_ids": [
+            2
+          ],
+          "paid_by_person_id": 3
+        },
+        {
+          "id": 3,
+          "name": "pan",
+          "quantity": 1,
+          "unit_price": 33.0,
+          "day": 1,
+          "url": "",
+          "person_ids": [
+            2,
+            3
+          ],
+          "paid_by_person_id": 3
+        }
+      ],
+      "shared_costs": [
+        {
+          "id": 1,
+          "name": "limpieza",
+          "cost": 120.0,
+          "day": 1
+        }
+      ]
+    }
+  },
+  "_next_trip_id": 3,
   "_next_person_id": {
-    "1": 1
+    "1": 1,
+    "2": 5
   },
   "_next_item_id": {
-    "1": 1
+    "1": 1,
+    "2": 4
   },
   "_next_shared_cost_id": {
-    "1": 1
+    "1": 1,
+    "2": 2
   }
 }

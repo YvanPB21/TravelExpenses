@@ -36,6 +36,7 @@ def trip_detail(trip_id):
     totals = calculator.calculate_totals()
     grand_total = calculator.get_grand_total()
     summary = calculator.get_summary()
+    payments_summary = calculator.calculate_payments_summary()
 
     # Organizar datos por día
     days_data = []
@@ -60,6 +61,7 @@ def trip_detail(trip_id):
         totals=totals,
         grand_total=grand_total,
         summary=summary,
+        payments_summary=payments_summary,
         days_data=days_data
     )
 
@@ -123,14 +125,17 @@ def add_item():
     unit_price = request.form.get('unit_price', 0)
     day = request.form.get('day', 1)
     url = request.form.get('url', '').strip()
+    paid_by = request.form.get('paid_by_person_id')
 
     try:
         quantity = int(quantity)
         unit_price = float(unit_price)
         day = int(day)
+        paid_by_person_id = int(paid_by) if paid_by else None
+
         if name and quantity > 0 and unit_price > 0 and trip_id and day > 0:
             data_store.set_current_trip(int(trip_id))
-            data_store.add_item(name, quantity, unit_price, day, url)
+            data_store.add_item(name, quantity, unit_price, day, url, paid_by_person_id)
             return redirect(url_for('trip_detail', trip_id=trip_id))
     except ValueError:
         pass
@@ -143,6 +148,33 @@ def remove_item(trip_id, item_id):
     """Eliminar un ítem"""
     data_store.set_current_trip(trip_id)
     data_store.remove_item(item_id)
+    return redirect(url_for('trip_detail', trip_id=trip_id))
+
+
+@app.route('/item/update/<int:trip_id>/<int:item_id>', methods=['POST'])
+def update_item(trip_id, item_id):
+    """Actualizar un ítem"""
+    data_store.set_current_trip(trip_id)
+
+    name = request.form.get('name', '').strip()
+    quantity = request.form.get('quantity')
+    unit_price = request.form.get('unit_price')
+    day = request.form.get('day')
+    url = request.form.get('url', '').strip()
+    paid_by = request.form.get('paid_by_person_id')
+
+    try:
+        quantity = int(quantity) if quantity else None
+        unit_price = float(unit_price) if unit_price else None
+        day = int(day) if day else None
+        paid_by_person_id = int(paid_by) if paid_by else None
+
+        data_store.update_item(item_id, name=name, quantity=quantity,
+                              unit_price=unit_price, day=day, url=url,
+                              paid_by_person_id=paid_by_person_id)
+    except ValueError:
+        pass
+
     return redirect(url_for('trip_detail', trip_id=trip_id))
 
 

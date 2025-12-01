@@ -82,6 +82,12 @@
                             <input type="number" name="quantity" placeholder="Cantidad" min="1" value="1" required>
                             <input type="number" name="unit_price" placeholder="Precio Unitario" step="0.01" min="0.01" required>
                             <input type="url" name="url" placeholder="URL (opcional)" class="url-input">
+                            <select name="paid_by_person_id" class="paid-by-select">
+                                <option value="">Pagado por...</option>
+                                {% for person in persons %}
+                                <option value="{{ person.id }}">{{ person.name }}</option>
+                                {% endfor %}
+                            </select>
                             <button type="submit" class="btn btn-primary">Agregar</button>
                         </form>
 
@@ -94,6 +100,7 @@
                                         <th>Cant.</th>
                                         <th>P.Unit.</th>
                                         <th>Total</th>
+                                        <th>Pagado por</th>
                                         <th>Enlace</th>
                                         {% for person in persons %}
                                         <th class="person-header">{{ person.name }}</th>
@@ -108,6 +115,17 @@
                                         <td class="item-quantity">{{ item.quantity }}</td>
                                         <td class="item-unit-price">${{ "%.2f"|format(item.unit_price) }}</td>
                                         <td class="item-cost">${{ "%.2f"|format(item.total_cost) }}</td>
+                                        <td class="paid-by-cell">
+                                            {% if item.paid_by_person_id %}
+                                                {% for p in persons %}
+                                                    {% if p.id == item.paid_by_person_id %}
+                                                        <span class="paid-by-badge">{{ p.name }}</span>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% else %}
+                                                <span class="no-paid">-</span>
+                                            {% endif %}
+                                        </td>
                                         <td class="item-link">
                                             {% if item.url %}
                                             <a href="{{ item.url }}" target="_blank" class="btn-link" title="{{ item.url }}">🔗 Ver</a>
@@ -127,8 +145,31 @@
                                         </td>
                                         {% endfor %}
                                         <td>
+                                            <button type="button" class="btn btn-secondary btn-small" onclick="toggleEditItem({{ item.id }})">Editar</button>
                                             <form action="{{ url_for('remove_item', trip_id=current_trip.id, item_id=item.id) }}" method="POST" style="display: inline;">
-                                                <button type="submit" class="btn btn-danger btn-small">Eliminar</button>
+                                                <button type="submit" class="btn btn-danger btn-small" onclick="return confirm('¿Eliminar este ítem?')">Eliminar</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    <!-- Fila de edición (oculta por defecto) -->
+                                    <tr id="edit-row-{{ item.id }}" class="edit-row" style="display: none;">
+                                        <td colspan="{{ persons|length + 6 }}" class="edit-cell">
+                                            <form action="{{ url_for('update_item', trip_id=current_trip.id, item_id=item.id) }}" method="POST" class="edit-form">
+                                                <div class="edit-form-grid">
+                                                    <input type="text" name="name" value="{{ item.name }}" placeholder="Nombre" required>
+                                                    <input type="number" name="quantity" value="{{ item.quantity }}" placeholder="Cantidad" min="1" required>
+                                                    <input type="number" name="unit_price" value="{{ item.unit_price }}" placeholder="P.Unit" step="0.01" min="0.01" required>
+                                                    <input type="number" name="day" value="{{ item.day }}" placeholder="Día" min="1" required>
+                                                    <input type="url" name="url" value="{{ item.url }}" placeholder="URL (opcional)">
+                                                    <select name="paid_by_person_id">
+                                                        <option value="">Pagado por...</option>
+                                                        {% for p in persons %}
+                                                        <option value="{{ p.id }}" {% if item.paid_by_person_id == p.id %}selected{% endif %}>{{ p.name }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                    <button type="submit" class="btn btn-success btn-small">Guardar</button>
+                                                    <button type="button" class="btn btn-secondary btn-small" onclick="toggleEditItem({{ item.id }})">Cancelar</button>
+                                                </div>
                                             </form>
                                         </td>
                                     </tr>
@@ -287,6 +328,60 @@
                 {% endif %}
             </section>
 
+            <!-- Resumen de Pagos (Quién pagó y cuánto se le debe) -->
+            <section class="card payments-card">
+                <h2>💳 Resumen de Pagos</h2>
+
+                {% if persons and payments_summary %}
+                <div class="payments-container">
+                    <table class="payments-table">
+                        <thead>
+                            <tr>
+                                <th>Persona</th>
+                                <th>Pagó</th>
+                                <th>Debe (Consumo)</th>
+                                <th class="balance-col">Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for person in persons %}
+                            <tr>
+                                <td class="person-name-cell">{{ person.name }}</td>
+                                <td class="paid-cell">${{ "%.2f"|format(payments_summary[person.id].total_paid) }}</td>
+                                <td class="owes-cell">${{ "%.2f"|format(payments_summary[person.id].total_owes) }}</td>
+                                <td class="balance-cell {% if payments_summary[person.id].balance > 0 %}positive{% elif payments_summary[person.id].balance < 0 %}negative{% else %}zero{% endif %}">
+                                    {% if payments_summary[person.id].balance > 0 %}
+                                        <span class="balance-positive">+${{ "%.2f"|format(payments_summary[person.id].balance) }}</span>
+                                        <small class="balance-hint">Le deben</small>
+                                    {% elif payments_summary[person.id].balance < 0 %}
+                                        <span class="balance-negative">-${{ "%.2f"|format(payments_summary[person.id].balance|abs) }}</span>
+                                        <small class="balance-hint">Debe</small>
+                                    {% else %}
+                                        <span class="balance-zero">$0.00</span>
+                                        <small class="balance-hint">A mano</small>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                    <div class="payments-explanation">
+                        <h4>💡 Cómo leer este resumen:</h4>
+                        <ul>
+                            <li><strong>Pagó:</strong> Dinero que esta persona desembolsó de su bolsillo</li>
+                            <li><strong>Debe (Consumo):</strong> Total que le corresponde pagar según su consumo</li>
+                            <li><strong>Balance positivo (+):</strong> Esta persona pagó de más → <strong>Le deben devolver ese dinero</strong></li>
+                            <li><strong>Balance negativo (-):</strong> Esta persona consumió más de lo que pagó → <strong>Debe ese dinero</strong></li>
+                            <li><strong>Balance cero (A mano):</strong> Lo que pagó = Lo que consumió → No hay deuda</li>
+                        </ul>
+                    </div>
+                </div>
+                {% else %}
+                    <p class="empty-message">Agrega personas y marca quién pagó los ítems para ver el resumen</p>
+                {% endif %}
+            </section>
+
             <!-- Acciones Generales -->
             <section class="actions-section">
                 <form action="{{ url_for('clear_all', trip_id=current_trip.id) }}" method="POST" onsubmit="return confirm('¿Estás seguro de que quieres limpiar todos los datos de este viaje?');">
@@ -297,6 +392,16 @@
     </div>
 
     <script>
+        // Mostrar/ocultar formulario de edición de ítem
+        function toggleEditItem(itemId) {
+            const editRow = document.getElementById(`edit-row-${itemId}`);
+            if (editRow.style.display === 'none') {
+                editRow.style.display = 'table-row';
+            } else {
+                editRow.style.display = 'none';
+            }
+        }
+
         // Sistema de pestañas
         function openDay(evt, dayId) {
             var tabContents = document.getElementsByClassName("tab-content");
