@@ -7,9 +7,6 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <!-- Notificación Toast -->
-    <div id="toast" class="toast-notification"></div>
-
     <div class="container">
         <!-- Breadcrumb -->
         <div class="breadcrumb">
@@ -300,21 +297,6 @@
     </div>
 
     <script>
-        // Mostrar notificación toast
-        function showToast(message, isError = false) {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.className = 'toast-notification show' + (isError ? ' error' : '');
-
-            setTimeout(() => {
-                toast.style.animation = 'slideOut 0.3s ease-out';
-                setTimeout(() => {
-                    toast.classList.remove('show');
-                    toast.style.animation = '';
-                }, 300);
-            }, 2000);
-        }
-
         // Sistema de pestañas
         function openDay(evt, dayId) {
             // Ocultar todo el contenido de pestañas
@@ -334,7 +316,7 @@
             evt.currentTarget.classList.add("active");
         }
 
-        // Función para alternar checkbox y actualizar totales
+        // Función para alternar checkbox y recargar página
         async function togglePersonItem(itemId, personId, tripId) {
             try {
                 const response = await fetch('{{ url_for("toggle_item_person") }}', {
@@ -350,130 +332,17 @@
                 });
 
                 if (response.ok) {
-                    const data = await response.json();
-                    if (data.success && data.totals) {
-                        // Actualizar solo los totales sin recargar
-                        updateTotals(data.totals);
-                        showToast('✓ Totales actualizados');
-                    } else {
-                        showToast('Error al actualizar', true);
-                        setTimeout(() => location.reload(), 1000);
-                    }
+                    // Recargar la página para mostrar cambios
+                    location.reload();
                 } else {
-                    showToast('Error al actualizar', true);
-                    setTimeout(() => location.reload(), 1000);
+                    console.error('Error al actualizar');
+                    location.reload();
                 }
             } catch (error) {
                 console.error('Error:', error);
-                showToast('Error de conexión', true);
-                setTimeout(() => location.reload(), 1000);
+                location.reload();
             }
         }
-
-        // Actualizar totales en la tabla general
-        function updateTotals(totals) {
-            for (const [personId, amounts] of Object.entries(totals)) {
-                const itemsCell = document.getElementById(`items-${personId}`);
-                const sharedCell = document.getElementById(`shared-${personId}`);
-                const totalCell = document.getElementById(`total-${personId}`);
-
-                if (itemsCell) {
-                    itemsCell.style.transition = 'background-color 0.3s';
-                    itemsCell.style.backgroundColor = '#c8e6c9';
-                    itemsCell.textContent = `$${amounts.items_total.toFixed(2)}`;
-                    setTimeout(() => itemsCell.style.backgroundColor = '', 1000);
-                }
-
-                if (sharedCell) {
-                    sharedCell.style.transition = 'background-color 0.3s';
-                    sharedCell.style.backgroundColor = '#c8e6c9';
-                    sharedCell.textContent = `$${amounts.shared_total.toFixed(2)}`;
-                    setTimeout(() => sharedCell.style.backgroundColor = '', 1000);
-                }
-
-                if (totalCell) {
-                    totalCell.style.transition = 'background-color 0.3s';
-                    totalCell.style.backgroundColor = '#a5d6a7';
-                    totalCell.textContent = `$${amounts.total.toFixed(2)}`;
-                    setTimeout(() => totalCell.style.backgroundColor = '', 1000);
-                }
-            }
-        }
-
-        // Interceptar envío de formularios para usar AJAX
-        document.addEventListener('DOMContentLoaded', function() {
-            // Interceptar formulario de agregar persona
-            const addPersonForm = document.querySelector('form[action*="person/add"]');
-            if (addPersonForm) {
-                addPersonForm.addEventListener('submit', async function(e) {
-                    e.preventDefault();
-                    const formData = new FormData(this);
-
-                    try {
-                        const response = await fetch(this.action, {
-                            method: 'POST',
-                            body: formData
-                        });
-
-                        if (response.ok) {
-                            // Recargar inmediatamente sin notificación
-                            location.reload();
-                        }
-                    } catch (error) {
-                        console.error('Error:', error);
-                        location.reload();
-                    }
-                });
-            }
-
-            // Interceptar formularios de agregar ítems
-            const addItemForms = document.querySelectorAll('form[action*="item/add"]');
-            addItemForms.forEach(form => {
-                form.addEventListener('submit', async function(e) {
-                    e.preventDefault();
-                    const formData = new FormData(this);
-
-                    try {
-                        const response = await fetch(this.action, {
-                            method: 'POST',
-                            body: formData
-                        });
-
-                        if (response.ok) {
-                            // Recargar inmediatamente sin notificación
-                            location.reload();
-                        }
-                    } catch (error) {
-                        console.error('Error:', error);
-                        location.reload();
-                    }
-                });
-            });
-
-            // Interceptar formularios de agregar costos compartidos
-            const addSharedForms = document.querySelectorAll('form[action*="shared/add"]');
-            addSharedForms.forEach(form => {
-                form.addEventListener('submit', async function(e) {
-                    e.preventDefault();
-                    const formData = new FormData(this);
-
-                    try {
-                        const response = await fetch(this.action, {
-                            method: 'POST',
-                            body: formData
-                        });
-
-                        if (response.ok) {
-                            // Recargar inmediatamente sin notificación
-                            location.reload();
-                        }
-                    } catch (error) {
-                        console.error('Error:', error);
-                        location.reload();
-                    }
-                });
-            });
-        });
     </script>
 </body>
 </html>

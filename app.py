@@ -158,11 +158,7 @@ def toggle_item_person():
         data_store.set_current_trip(int(trip_id))
         success = data_store.toggle_person_for_item(int(item_id), int(person_id))
         if success:
-            totals = calculator.calculate_totals()
-            return jsonify({
-                'success': True,
-                'totals': totals
-            })
+            return jsonify({'success': True})
 
     return jsonify({'success': False}), 400
 
