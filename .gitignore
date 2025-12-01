@@ -1,22 +1,42 @@
+# Firebase credentials
+firebase-credentials.json
+*-firebase-adminsdk-*.json
+
+# Environment variables
+.env
+.env.local
+
 # Python
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
-*.egg-info/
-dist/
 build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
 # Virtual Environment
-.venv/
 venv/
+.venv/
 ENV/
 env/
 
 # IDE
-.idea/
 .vscode/
+.idea/
 *.swp
 *.swo
 *~
@@ -25,11 +45,9 @@ env/
 .DS_Store
 Thumbs.db
 
-# Flask
-instance/
-.webassets-cache
+# Logs
+*.log
 
-# Environment variables
-.env
-.flaskenv
+# Local JSON data (backup)
+split_bill_data.json
 

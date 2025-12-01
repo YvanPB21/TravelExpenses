@@ -9,71 +9,117 @@ Aplicación web para gestionar y dividir gastos de compras entre varias personas
 - ✅ **Costos compartidos**: Gastos que se dividen equitativamente entre todos los participantes
 - ✅ **Cálculo automático**: Actualización en tiempo real de los totales
 - ✅ **Interfaz intuitiva**: Diseño responsive y fácil de usar
-- ✅ **Almacenamiento en memoria**: Los datos se mantienen mientras la aplicación está en ejecución
+- ✅ **Firebase Firestore**: Almacenamiento en la nube gratuito (plan Spark)
+- ✅ **Múltiples viajes**: Gestiona varios viajes/eventos simultáneamente
+- ✅ **Organización por días**: Divide gastos por días del viaje
+- ✅ **Optimizado para rendimiento**: Caché inteligente y batch operations (~90% más rápido)
 
 ## Requisitos
 
-- Python 3.7 o superior
-- Flask 3.0.0
+- Python 3.10 o superior
+- Cuenta de Firebase (gratuita)
 
 ## Instalación
 
-1. Clona el repositorio o descarga los archivos
+### 1. Clonar o descargar el proyecto
 
-2. Navega al directorio del proyecto:
 ```bash
 cd split_bill
 ```
 
-3. Activa el entorno virtual (si ya existe):
-```bash
+### 2. Crear y activar entorno virtual
+
+```powershell
 # Windows PowerShell
+python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 
-# Windows CMD
-.venv\Scripts\activate.bat
-
 # Linux/Mac
+python3 -m venv .venv
 source .venv/bin/activate
 ```
 
-4. Instala las dependencias:
-```bash
+### 3. Instalar dependencias
+
+```powershell
 pip install -r requirements.txt
+```
+
+### 4. Configurar Firebase
+
+Consulta la guía completa en [FIREBASE_SETUP.md](FIREBASE_SETUP.md) para:
+- Crear proyecto en Firebase
+- Configurar Firestore
+- Obtener credenciales
+- Configurar reglas de seguridad
+
+**Resumen rápido:**
+
+1. Ve a [Firebase Console](https://console.firebase.google.com/)
+2. Crea un nuevo proyecto
+3. Habilita Firestore Database (modo test)
+4. Descarga las credenciales de la cuenta de servicio
+5. Guarda el archivo como `firebase-credentials.json` en el directorio del proyecto
+6. Configura la variable de entorno:
+
+```powershell
+$env:GOOGLE_APPLICATION_CREDENTIALS="C:\dev\split_bill\firebase-credentials.json"
 ```
 
 ## Uso
 
-1. Ejecuta la aplicación:
-```bash
+### Ejecutar con Firebase (por defecto)
+
+```powershell
+# Configurar credenciales (si no lo hiciste antes)
+$env:GOOGLE_APPLICATION_CREDENTIALS="C:\dev\split_bill\firebase-credentials.json"
+
+# Ejecutar la aplicación
 python app.py
 ```
 
-2. Abre tu navegador y visita:
+### Ejecutar con JSON local (modo legacy)
+
+Si prefieres usar almacenamiento local en lugar de Firebase:
+
+1. Modifica `app.py` línea 12:
+```python
+data_store = DataStore(use_firestore=False)
+```
+
+2. Ejecuta normalmente:
+```powershell
+python app.py
+```
+
+### Acceder a la aplicación
+
+Abre tu navegador en:
 ```
 http://localhost:5000
 ```
-
-3. Comienza a usar la aplicación:
-   - Agrega personas que participarán en los gastos
-   - Agrega ítems de compra con sus costos
-   - Marca con checkboxes qué personas desean cada ítem
-   - Agrega costos compartidos que aplican a todos
-   - Observa el resumen automático de cuánto debe pagar cada persona
 
 ## Estructura del Proyecto
 
 ```
 split_bill/
-├── app.py              # Aplicación Flask principal
-├── models.py           # Modelos de datos y almacenamiento en memoria
-├── calculator.py       # Lógica de cálculo de división de gastos
-├── requirements.txt    # Dependencias de Python
+├── app.py                      # Aplicación Flask principal
+├── models.py                   # Modelos de datos (con soporte Firestore y JSON)
+├── calculator.py               # Lógica de cálculo de división de gastos
+├── requirements.txt            # Dependencias de Python
+├── FIREBASE_SETUP.md          # Guía de configuración de Firebase
+├── db/
+│   ├── firebase_client.py     # Cliente de Firebase
+│   └── firestore_store.py     # Capa de acceso a Firestore
+├── scripts/
+│   └── migrate_to_firestore.py # Script de migración (opcional)
 ├── templates/
-│   └── index.html     # Plantilla HTML principal
+│   ├── index.html             # Lista de viajes
+│   ├── trips.html             # Vista de viajes
+│   └── trip_detail.html       # Detalle de un viaje
 ├── static/
-│   └── style.css      # Estilos CSS
-└── README.md          # Este archivo
+│   └── style.css              # Estilos CSS
+└── README.md                  # Este archivo
 ```
 
 ## Funcionamiento
@@ -90,40 +136,105 @@ split_bill/
 ### Cálculo Total
 El total que debe pagar cada persona es:
 - Suma de su parte proporcional de los ítems marcados
-- + Su parte proporcional de los costos compartidos
+- \+ Su parte proporcional de los costos compartidos
 
-## Ejemplo de Uso
+## Despliegue Gratuito
 
-1. **Agregar personas**: Ana, Juan, María
-2. **Agregar ítems**:
-   - Pizza $30 (marcada por Ana y Juan)
-   - Ensalada $15 (marcada solo por María)
-   - Refresco $10 (marcado por todos)
-3. **Agregar costos compartidos**:
-   - Propina $15 (se divide entre todos)
+### Opción 1: Firebase Hosting + Cloud Functions
+- Hosting estático gratuito
+- 125,000 invocaciones gratis/mes
+- [Guía de despliegue](https://firebase.google.com/docs/hosting)
 
-**Resultado**:
-- Ana: Pizza ($15) + Refresco ($3.33) + Propina ($5) = $23.33
-- Juan: Pizza ($15) + Refresco ($3.33) + Propina ($5) = $23.33
-- María: Ensalada ($15) + Refresco ($3.33) + Propina ($5) = $23.33
+### Opción 2: Render.com
+- Plan gratuito con 750 horas/mes
+- [Render.com](https://render.com/)
 
-## Notas Importantes
+### Opción 3: Railway.app
+- $5 de crédito mensual gratis
+- [Railway.app](https://railway.app/)
 
-- ⚠️ Los datos se almacenan en memoria, por lo que se pierden al reiniciar la aplicación
-- 🔄 Los totales se actualizan automáticamente al marcar/desmarcar checkboxes
-- 🗑️ El botón "Limpiar Todo" elimina todos los datos (personas, ítems y costos)
+## Límites del Plan Gratuito de Firebase
+
+- **Almacenamiento**: 1 GB
+- **Lecturas**: 50,000 por día
+- **Escrituras**: 20,000 por día
+- **Eliminaciones**: 20,000 por día
+
+Suficiente para equipos pequeños y uso personal.
+
+## Rendimiento
+
+La aplicación incluye **optimizaciones avanzadas** de Firestore:
+
+- ✅ **Caché inteligente con TTL** - Reduce lecturas en ~90%
+- ✅ **Batch operations** - Operaciones masivas ~98% más rápidas
+- ✅ **Filtrado en memoria** - Navegación entre días instantánea
+
+**Resultado**: Respuesta típica <0.5s vs 2-3s sin optimizaciones.
+
+📖 Ver [OPTIMIZACIONES_FIRESTORE.md](OPTIMIZACIONES_FIRESTORE.md) para detalles completos.
+
+### Probar Optimizaciones
+
+```powershell
+# Activar modo debug
+$env:DEBUG_FIRESTORE="true"
+
+# Ejecutar pruebas
+python test_optimizaciones.py
+```
 
 ## Tecnologías Utilizadas
 
-- **Backend**: Python, Flask
+- **Backend**: Python 3.10+, Flask 3.0
+- **Base de Datos**: Firebase Firestore (NoSQL)
 - **Frontend**: HTML5, CSS3, JavaScript (Vanilla)
-- **Almacenamiento**: En memoria (Python dataclasses)
+- **Autenticación**: Próximamente (Firebase Auth)
 
-## Licencia
+## Desarrollo
 
-Este proyecto es de código abierto y está disponible para uso personal o comercial.
+### Ejecutar tests
+
+```powershell
+pytest
+```
+
+### Verificar conexión a Firebase
+
+```powershell
+python -c "from db.firebase_client import get_firestore_client; client = get_firestore_client(); print('✓ Firebase conectado')"
+```
+
+## Solución de Problemas
+
+### Error: "Could not automatically determine credentials"
+```powershell
+$env:GOOGLE_APPLICATION_CREDENTIALS="C:\dev\split_bill\firebase-credentials.json"
+```
+
+### Error: "Permission denied" en Firestore
+- Verifica las reglas de seguridad en Firebase Console
+- Asegúrate de estar en modo test (para desarrollo)
+
+### La aplicación no guarda datos
+- Verifica que `use_firestore=True` en `app.py`
+- Comprueba que las credenciales estén configuradas
+- Revisa los logs en la consola
+
+## Roadmap
+
+- [ ] Autenticación de usuarios con Firebase Auth
+- [ ] Compartir viajes entre usuarios
+- [ ] Exportar resumen en PDF
+- [ ] Notificaciones por email
+- [ ] App móvil (React Native)
+- [ ] Gráficos de gastos
 
 ## Contribuciones
 
 Las contribuciones son bienvenidas. Si encuentras algún error o tienes sugerencias de mejora, no dudes en crear un issue o pull request.
+
+## Licencia
+
+Este proyecto es de código abierto y está disponible para uso personal o comercial.
 

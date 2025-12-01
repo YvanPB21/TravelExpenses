@@ -1,80 +1,109 @@
-# 🚀 Inicio Rápido - Split Bill
+# Quick Start - Split Bill con Firebase
 
-## Para ejecutar la aplicación:
+## Inicio Rápido (5 minutos)
 
-1. **Activar el entorno virtual:**
-   ```powershell
-   .\.venv\Scripts\Activate.ps1
-   ```
+### 1. Instalar Dependencias
 
-2. **Ejecutar la aplicación:**
-   ```powershell
-   python app.py
-   ```
-
-3. **Abrir en el navegador:**
-   ```
-   http://localhost:5000
-   ```
-
-## Estructura de Archivos Creados:
-
-```
-split_bill/
-├── app.py              # 🎯 Aplicación Flask principal (EJECUTAR ESTE)
-├── models.py           # 📦 Modelos de datos
-├── calculator.py       # 🧮 Lógica de cálculo
-├── requirements.txt    # 📋 Dependencias
-├── test.py            # ✅ Script de prueba
-├── README.md          # 📖 Documentación completa
-├── .gitignore         # 🚫 Archivos a ignorar en git
-├── templates/
-│   └── index.html     # 🎨 Interfaz HTML
-└── static/
-    └── style.css      # 💅 Estilos CSS
-```
-
-## Funcionalidades Implementadas:
-
-✅ **Gestión de Personas**
-   - Agregar/eliminar personas del grupo
-
-✅ **Ítems de Compra**
-   - Agregar ítems con costo
-   - Seleccionar qué personas participan (checkboxes)
-   - El costo se divide solo entre los seleccionados
-
-✅ **Costos Compartidos**
-   - Gastos que se dividen entre TODOS (propina, delivery, etc.)
-
-✅ **Cálculo Automático**
-   - Actualización en tiempo real al marcar/desmarcar
-   - Resumen detallado por persona
-   - Total general
-
-✅ **Interfaz Moderna**
-   - Diseño responsive
-   - Colores diferenciados
-   - Fácil de usar
-
-## Comandos Útiles:
-
-### Instalar dependencias (si es necesario):
 ```powershell
 pip install -r requirements.txt
 ```
 
-### Ejecutar pruebas:
+### 2. Configurar Firebase
+
+#### Opción A: Usar Firebase (recomendado para producción)
+
+1. Crea un proyecto en [Firebase Console](https://console.firebase.google.com/)
+2. Habilita Firestore Database (modo test)
+3. Descarga credenciales: **Configuración > Cuentas de servicio > Generar nueva clave privada**
+4. Guarda el archivo como `firebase-credentials.json`
+5. Configura variable de entorno:
+
 ```powershell
-python test.py
+$env:GOOGLE_APPLICATION_CREDENTIALS="C:\dev\split_bill\firebase-credentials.json"
 ```
 
-### Detener el servidor:
-Presiona `Ctrl + C` en la terminal donde está corriendo
+#### Opción B: Usar JSON Local (desarrollo rápido)
 
----
+Modifica `app.py` línea 12:
+```python
+data_store = DataStore(use_firestore=False)
+```
 
-## 🎉 ¡Todo listo para usar!
+### 3. Ejecutar
 
-La aplicación está completamente funcional y lista para gestionar gastos grupales.
+```powershell
+python app.py
+```
+
+### 4. Abrir en el navegador
+
+```
+http://localhost:5000
+```
+
+## Primeros Pasos
+
+### Crear tu primer viaje
+
+1. En la página principal, haz clic en "Nuevo Viaje"
+2. Nombre: "Viaje a la playa"
+3. Días: 3
+4. Haz clic en "Crear Viaje"
+
+### Agregar personas
+
+1. En el viaje, agrega participantes:
+   - Juan
+   - María
+   - Pedro
+
+### Agregar gastos
+
+**Items individuales:**
+- Carne: $400 (compartido por Juan y María)
+- Pollo: $230 (solo Pedro)
+- Pan: $33 (todos)
+
+**Costos compartidos:**
+- Limpieza: $120 (se divide entre todos)
+
+### Ver resumen
+
+La aplicación calculará automáticamente cuánto debe pagar cada persona.
+
+## Comandos Útiles
+
+```powershell
+# Verificar conexión a Firebase
+python -c "from db.firebase_client import get_firestore_client; get_firestore_client(); print('OK')"
+
+# Ejecutar con JSON local
+# Edita app.py: data_store = DataStore(use_firestore=False)
+python app.py
+
+# Ver ayuda de migración (si tienes datos en JSON)
+python scripts/migrate_to_firestore.py --help
+```
+
+## Solución de Problemas
+
+### "Module 'firebase_admin' not found"
+```powershell
+pip install firebase-admin
+```
+
+### "Could not determine credentials"
+```powershell
+$env:GOOGLE_APPLICATION_CREDENTIALS="C:\dev\split_bill\firebase-credentials.json"
+```
+
+### Los datos no se guardan
+- Verifica que `use_firestore=True` en `app.py` (línea 12)
+- Comprueba que las credenciales estén configuradas
+- Revisa las reglas de Firestore (deben permitir lectura/escritura en modo test)
+
+## Más Información
+
+- [Configuración completa de Firebase](FIREBASE_SETUP.md)
+- [README principal](README.md)
 

@@ -1,8 +1,8 @@
 """
 Modelos de datos para la aplicación de división de gastos
 """
-from typing import List, Set, Dict
-from dataclasses import dataclass, field, asdict
+from typing import List, Set, Dict, Optional
+from dataclasses import dataclass, field
 from datetime import datetime
 import json
 import os
@@ -53,25 +53,36 @@ class SharedCost:
 
 
 class DataStore:
-    """Almacena todos los datos en memoria, organizados por viajes"""
+    """Almacena todos los datos en Firestore, organizados por viajes"""
 
-    DATA_FILE = 'split_bill_data.json'
+    DATA_FILE = 'split_bill_data.json'  # Mantenido para compatibilidad
 
-    def __init__(self):
-        self.trips: List[Trip] = []
-        self.current_trip_id: int = None
-        # Datos por viaje: {trip_id: {'persons': [], 'items': [], 'shared_costs': []}}
-        self.trip_data: Dict[int, Dict] = {}
-        self._next_trip_id = 1
-        self._next_person_id = {}  # {trip_id: next_id}
-        self._next_item_id = {}
-        self._next_shared_cost_id = {}
+    def __init__(self, use_firestore: bool = True, firebase_config=None):
+        self.use_firestore = use_firestore
+        self.current_trip_id: Optional[int] = None
 
-        # Cargar datos desde archivo si existe
-        self.load_from_file()
+        if use_firestore:
+            # Usar Firestore
+            from db.firestore_store import FirestoreStore
+            self._store = FirestoreStore(firebase_config)
+            # Cargar current_trip_id desde Firestore
+            self.current_trip_id = self._store.get_current_trip_id()
+        else:
+            # Modo legacy con JSON
+            self.trips: List[Trip] = []
+            self.trip_data: Dict[int, Dict] = {}
+            self._next_trip_id = 1
+            self._next_person_id = {}
+            self._next_item_id = {}
+            self._next_shared_cost_id = {}
+            self.load_from_file()
 
     def save_to_file(self):
-        """Guarda todos los datos en un archivo JSON"""
+        """Guarda todos los datos en un archivo JSON (solo modo legacy)"""
+        if self.use_firestore:
+            # En modo Firestore, los datos ya están persistidos
+            return
+
         try:
             data = {
                 'trips': [self._trip_to_dict(trip) for trip in self.trips],
@@ -99,7 +110,10 @@ class DataStore:
             print(f"✗ Error al guardar datos: {e}")
 
     def load_from_file(self):
-        """Carga todos los datos desde un archivo JSON"""
+        """Carga todos los datos desde un archivo JSON (solo modo legacy)"""
+        if self.use_firestore:
+            return
+
         if not os.path.exists(self.DATA_FILE):
             print(f"No existe archivo de datos. Iniciando con datos vacíos.")
             return
@@ -203,6 +217,9 @@ class DataStore:
 
     # Gestión de viajes
     def add_trip(self, name: str, description: str = "", days: int = 1) -> Trip:
+        if self.use_firestore:
+            return self._store.add_trip(name, description, days)
+
         trip = Trip(id=self._next_trip_id, name=name, description=description, days=days)
         self.trips.append(trip)
         self.trip_data[trip.id] = {
@@ -217,19 +234,34 @@ class DataStore:
         self.save_to_file()  # Guardar cambios
         return trip
 
-    def get_trip(self, trip_id: int) -> Trip:
+    def get_trip(self, trip_id: int) -> Optional[Trip]:
+        if self.use_firestore:
+            return self._store.get_trip(trip_id)
+
         for trip in self.trips:
             if trip.id == trip_id:
                 return trip
         return None
 
     def set_current_trip(self, trip_id: int) -> bool:
+        if self.use_firestore:
+            result = self._store.set_current_trip(trip_id)
+            if result:
+                self.current_trip_id = trip_id
+            return result
+
         if self.get_trip(trip_id):
             self.current_trip_id = trip_id
             return True
         return False
 
     def remove_trip(self, trip_id: int) -> bool:
+        if self.use_firestore:
+            result = self._store.remove_trip(trip_id)
+            if result and self.current_trip_id == trip_id:
+                self.current_trip_id = None
+            return result
+
         trip = self.get_trip(trip_id)
         if trip:
             self.trips.remove(trip)
@@ -243,35 +275,75 @@ class DataStore:
 
     # Propiedades de acceso rápido al viaje actual
     @property
+    def trips(self) -> List[Trip]:
+        if self.use_firestore:
+            return self._store.list_trips()
+        return self._trips_list if hasattr(self, '_trips_list') else []
+
+    @trips.setter
+    def trips(self, value: List[Trip]):
+        if not self.use_firestore:
+            self._trips_list = value
+
+    @property
     def persons(self) -> List[Person]:
+        if self.use_firestore:
+            if self.current_trip_id:
+                return self._store.list_persons(self.current_trip_id)
+            return []
+
         if self.current_trip_id and self.current_trip_id in self.trip_data:
             return self.trip_data[self.current_trip_id]['persons']
         return []
 
     @property
     def items(self) -> List[Item]:
+        if self.use_firestore:
+            if self.current_trip_id:
+                return self._store.list_items(self.current_trip_id)
+            return []
+
         if self.current_trip_id and self.current_trip_id in self.trip_data:
             return self.trip_data[self.current_trip_id]['items']
         return []
 
     @property
     def shared_costs(self) -> List[SharedCost]:
+        if self.use_firestore:
+            if self.current_trip_id:
+                return self._store.list_shared_costs(self.current_trip_id)
+            return []
+
         if self.current_trip_id and self.current_trip_id in self.trip_data:
             return self.trip_data[self.current_trip_id]['shared_costs']
         return []
 
     def get_items_by_day(self, day: int) -> List[Item]:
         """Obtiene los ítems de un día específico"""
+        if self.use_firestore:
+            if self.current_trip_id:
+                return self._store.get_items_by_day(self.current_trip_id, day)
+            return []
+
         return [item for item in self.items if item.day == day]
 
     def get_shared_costs_by_day(self, day: int) -> List[SharedCost]:
         """Obtiene los costos compartidos de un día específico"""
+        if self.use_firestore:
+            if self.current_trip_id:
+                return self._store.get_shared_costs_by_day(self.current_trip_id, day)
+            return []
+
         return [sc for sc in self.shared_costs if sc.day == day]
 
     # Gestión de personas
-    def add_person(self, name: str) -> Person:
+    def add_person(self, name: str) -> Optional[Person]:
         if not self.current_trip_id:
             return None
+
+        if self.use_firestore:
+            return self._store.add_person(self.current_trip_id, name)
+
         person = Person(id=self._next_person_id[self.current_trip_id], name=name)
         self.persons.append(person)
         self._next_person_id[self.current_trip_id] += 1
@@ -279,6 +351,11 @@ class DataStore:
         return person
 
     def remove_person(self, person_id: int) -> bool:
+        if self.use_firestore:
+            if not self.current_trip_id:
+                return False
+            return self._store.remove_person(self.current_trip_id, person_id)
+
         person = self.get_person(person_id)
         if person:
             self.persons.remove(person)
@@ -289,16 +366,25 @@ class DataStore:
             return True
         return False
 
-    def get_person(self, person_id: int) -> Person:
+    def get_person(self, person_id: int) -> Optional[Person]:
+        if self.use_firestore:
+            if not self.current_trip_id:
+                return None
+            return self._store.get_person(self.current_trip_id, person_id)
+
         for person in self.persons:
             if person.id == person_id:
                 return person
         return None
 
     # Gestión de ítems
-    def add_item(self, name: str, quantity: int, unit_price: float, day: int = 1, url: str = "", paid_by_person_id: int = None) -> Item:
+    def add_item(self, name: str, quantity: int, unit_price: float, day: int = 1, url: str = "", paid_by_person_id: int = None) -> Optional[Item]:
         if not self.current_trip_id:
             return None
+
+        if self.use_firestore:
+            return self._store.add_item(self.current_trip_id, name, quantity, unit_price, day, url, paid_by_person_id)
+
         item = Item(id=self._next_item_id[self.current_trip_id], name=name, quantity=quantity,
                    unit_price=unit_price, day=day, url=url, paid_by_person_id=paid_by_person_id)
         self.items.append(item)
@@ -307,6 +393,11 @@ class DataStore:
         return item
 
     def remove_item(self, item_id: int) -> bool:
+        if self.use_firestore:
+            if not self.current_trip_id:
+                return False
+            return self._store.remove_item(self.current_trip_id, item_id)
+
         item = self.get_item(item_id)
         if item:
             self.items.remove(item)
@@ -318,6 +409,15 @@ class DataStore:
                    unit_price: float = None, day: int = None, url: str = None,
                    paid_by_person_id: int = None) -> bool:
         """Actualiza un ítem existente"""
+        if self.use_firestore:
+            if not self.current_trip_id:
+                return False
+            return self._store.update_item(
+                self.current_trip_id, item_id,
+                name=name, quantity=quantity, unit_price=unit_price,
+                day=day, url=url, paid_by_person_id=paid_by_person_id
+            )
+
         item = self.get_item(item_id)
         if item:
             if name is not None:
@@ -336,7 +436,12 @@ class DataStore:
             return True
         return False
 
-    def get_item(self, item_id: int) -> Item:
+    def get_item(self, item_id: int) -> Optional[Item]:
+        if self.use_firestore:
+            if not self.current_trip_id:
+                return None
+            return self._store.get_item(self.current_trip_id, item_id)
+
         for item in self.items:
             if item.id == item_id:
                 return item
@@ -344,6 +449,11 @@ class DataStore:
 
     def toggle_person_for_item(self, item_id: int, person_id: int) -> bool:
         """Alterna la participación de una persona en un ítem"""
+        if self.use_firestore:
+            if not self.current_trip_id:
+                return False
+            return self._store.toggle_person_for_item(self.current_trip_id, item_id, person_id)
+
         item = self.get_item(item_id)
         if item and self.get_person(person_id):
             if person_id in item.person_ids:
@@ -355,9 +465,13 @@ class DataStore:
         return False
 
     # Gestión de costos compartidos
-    def add_shared_cost(self, name: str, cost: float, day: int = 1) -> SharedCost:
+    def add_shared_cost(self, name: str, cost: float, day: int = 1) -> Optional[SharedCost]:
         if not self.current_trip_id:
             return None
+
+        if self.use_firestore:
+            return self._store.add_shared_cost(self.current_trip_id, name, cost, day)
+
         shared_cost = SharedCost(id=self._next_shared_cost_id[self.current_trip_id], name=name, cost=cost, day=day)
         self.shared_costs.append(shared_cost)
         self._next_shared_cost_id[self.current_trip_id] += 1
@@ -365,6 +479,11 @@ class DataStore:
         return shared_cost
 
     def remove_shared_cost(self, shared_cost_id: int) -> bool:
+        if self.use_firestore:
+            if not self.current_trip_id:
+                return False
+            return self._store.remove_shared_cost(self.current_trip_id, shared_cost_id)
+
         shared_cost = self.get_shared_cost(shared_cost_id)
         if shared_cost:
             self.shared_costs.remove(shared_cost)
@@ -372,7 +491,12 @@ class DataStore:
             return True
         return False
 
-    def get_shared_cost(self, shared_cost_id: int) -> SharedCost:
+    def get_shared_cost(self, shared_cost_id: int) -> Optional[SharedCost]:
+        if self.use_firestore:
+            if not self.current_trip_id:
+                return None
+            return self._store.get_shared_cost(self.current_trip_id, shared_cost_id)
+
         for shared_cost in self.shared_costs:
             if shared_cost.id == shared_cost_id:
                 return shared_cost
@@ -380,7 +504,14 @@ class DataStore:
 
     def clear_all(self):
         """Limpia todos los datos del viaje actual"""
-        if self.current_trip_id and self.current_trip_id in self.trip_data:
+        if not self.current_trip_id:
+            return
+
+        if self.use_firestore:
+            self._store.clear_trip_data(self.current_trip_id)
+            return
+
+        if self.current_trip_id in self.trip_data:
             self.trip_data[self.current_trip_id] = {
                 'persons': [],
                 'items': [],
