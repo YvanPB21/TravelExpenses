@@ -19,6 +19,7 @@ class Item:
     name: str
     quantity: int  # Cantidad de unidades
     unit_price: float  # Precio por unidad
+    url: str = ""  # URL del producto (opcional)
     person_ids: Set[int] = field(default_factory=set)  # IDs de personas que participan
 
     @property
@@ -70,8 +71,8 @@ class DataStore:
         return None
 
     # Gestión de ítems
-    def add_item(self, name: str, quantity: int, unit_price: float) -> Item:
-        item = Item(id=self._next_item_id, name=name, quantity=quantity, unit_price=unit_price)
+    def add_item(self, name: str, quantity: int, unit_price: float, url: str = "") -> Item:
+        item = Item(id=self._next_item_id, name=name, quantity=quantity, unit_price=unit_price, url=url)
         self.items.append(item)
         self._next_item_id += 1
         return item

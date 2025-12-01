@@ -45,6 +45,7 @@
                     <input type="text" name="name" placeholder="Nombre del ítem" required>
                     <input type="number" name="quantity" placeholder="Cantidad" min="1" value="1" required>
                     <input type="number" name="unit_price" placeholder="Precio Unitario" step="0.01" min="0.01" required>
+                    <input type="url" name="url" placeholder="URL del producto (opcional)" class="url-input">
                     <button type="submit" class="btn btn-primary">Agregar</button>
                 </form>
 
@@ -57,6 +58,7 @@
                                 <th>Cantidad</th>
                                 <th>Precio Unit.</th>
                                 <th>Total</th>
+                                <th>Enlace</th>
                                 {% for person in persons %}
                                 <th class="person-header">{{ person.name }}</th>
                                 {% endfor %}
@@ -70,6 +72,15 @@
                                 <td class="item-quantity">{{ item.quantity }}</td>
                                 <td class="item-unit-price">${{ "%.2f"|format(item.unit_price) }}</td>
                                 <td class="item-cost">${{ "%.2f"|format(item.total_cost) }}</td>
+                                <td class="item-link">
+                                    {% if item.url %}
+                                    <a href="{{ item.url }}" target="_blank" class="btn-link" title="{{ item.url }}">
+                                        🔗 Ver
+                                    </a>
+                                    {% else %}
+                                    <span class="no-link">-</span>
+                                    {% endif %}
+                                </td>
                                 {% for person in persons %}
                                 <td class="checkbox-cell">
                                     <input type="checkbox"

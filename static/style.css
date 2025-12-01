@@ -94,8 +94,18 @@ header p {
     min-width: 100px;
 }
 
+.add-item-form input[type="url"] {
+    flex: 2;
+    min-width: 200px;
+}
+
+.url-input {
+    font-size: 0.95em;
+}
+
 .add-form input[type="text"],
-.add-form input[type="number"] {
+.add-form input[type="number"],
+.add-form input[type="url"] {
     flex: 1;
     min-width: 150px;
     padding: 12px;
@@ -248,6 +258,34 @@ header p {
     font-weight: 700;
     text-align: right;
     font-size: 1.05em;
+}
+
+.item-link {
+    text-align: center;
+}
+
+.btn-link {
+    display: inline-block;
+    padding: 6px 12px;
+    background-color: var(--secondary-color);
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 0.85em;
+    font-weight: 600;
+    transition: all 0.3s;
+    cursor: pointer;
+}
+
+.btn-link:hover {
+    background-color: #1976D2;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 6px rgba(33, 150, 243, 0.4);
+}
+
+.no-link {
+    color: var(--text-light);
+    font-style: italic;
 }
 
 .checkbox-cell {

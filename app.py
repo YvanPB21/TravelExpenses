@@ -53,12 +53,13 @@ def add_item():
     name = request.form.get('name', '').strip()
     quantity = request.form.get('quantity', 1)
     unit_price = request.form.get('unit_price', 0)
+    url = request.form.get('url', '').strip()
 
     try:
         quantity = int(quantity)
         unit_price = float(unit_price)
         if name and quantity > 0 and unit_price > 0:
-            data_store.add_item(name, quantity, unit_price)
+            data_store.add_item(name, quantity, unit_price, url)
     except ValueError:
         pass
 
