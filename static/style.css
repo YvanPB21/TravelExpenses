@@ -350,12 +350,116 @@ header p {
 
 .shared-cost-item {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
+    gap: 10px;
     padding: 12px;
     background-color: #f0fdf4;
     border: 2px solid var(--success-color);
     border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+.shared-cost-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.shared-cost-actions {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.shared-paid-by {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+
+.paid-by-label-small {
+    font-size: 0.9em;
+    color: #666;
+}
+
+.no-paid-badge {
+    display: inline-block;
+    background: #ccc;
+    color: #666;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.85em;
+    font-style: italic;
+}
+
+/* Checkboxes de "Pagado por" */
+.paid-by-checkboxes,
+.paid-by-checkboxes-edit {
+    grid-column: 1 / -1;
+    padding: 10px;
+    background-color: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 5px;
+    margin: 5px 0;
+}
+
+.paid-by-label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--text-dark);
+    font-size: 0.95em;
+}
+
+.checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    font-size: 0.9em;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.checkbox-label:hover {
+    background-color: #e5e7eb;
+}
+
+.checkbox-label input[type="checkbox"] {
+    cursor: pointer;
+    width: 16px;
+    height: 16px;
+}
+
+/* Formulario de edición de costo compartido */
+.edit-shared-form {
+    margin-top: 10px;
+    padding: 15px;
+    background-color: #fff;
+    border: 2px solid #2196F3;
+    border-radius: 5px;
+}
+
+.edit-shared-form .edit-form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+    align-items: start;
+}
+
+.edit-shared-form input,
+.edit-shared-form button {
+    padding: 8px;
 }
 
 .shared-name {
@@ -688,6 +792,71 @@ header p {
 
 .toast-notification.error {
     background: var(--danger-color);
+}
+
+/* Chips seleccionables para "Pagado por" */
+.paid-by-chips-container {
+    margin: 10px 0;
+}
+
+.paid-by-label {
+    display: block;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+    font-size: 0.95em;
+}
+
+.chips-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.chip-person {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 16px;
+    background: #e0e0e0;
+    border: 2px solid #e0e0e0;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.9em;
+    user-select: none;
+    position: relative;
+}
+
+.chip-person:hover {
+    background: #d5d5d5;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.chip-person.selected {
+    background: linear-gradient(135deg, var(--primary-color), #66BB6A);
+    border-color: var(--primary-color);
+    color: white;
+    font-weight: 600;
+}
+
+.chip-person.selected::after {
+    content: "✓";
+    margin-left: 6px;
+    font-weight: bold;
+}
+
+.chip-person input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.paid-by-chips-edit {
+    padding: 10px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    margin: 10px 0;
 }
 
 @keyframes slideIn {

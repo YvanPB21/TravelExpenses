@@ -4,18 +4,32 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="63bd1a63-815d-47a9-9e63-ea284e6542b9" name="Changes" comment="Implement item editing functionality and payment tracking">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+    <list default="true" id="63bd1a63-815d-47a9-9e63-ea284e6542b9" name="Changes" comment="Add Firebase Firestore integration and optimize performance with caching">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/QUICKSTART.md" beforeDir="false" afterPath="$PROJECT_DIR$/QUICKSTART.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/calculator.py" beforeDir="false" afterPath="$PROJECT_DIR$/calculator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/firebase_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/db/firebase_client.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/firestore_store.py" beforeDir="false" afterPath="$PROJECT_DIR$/db/firestore_store.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/style.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/trip_detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/trip_detail.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FlaskConsoleOptions" custom-start-script="import sys; print('Python %s on %s' % (sys.version, sys.platform)); sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;from flask.cli import ScriptInfo, NoAppException&#10;for module in [&quot;main.py&quot;, &quot;wsgi.py&quot;, &quot;app.py&quot;]:&#10;    try: locals().update(ScriptInfo(app_import_path=module, create_app=None).load_app().make_shell_context()); print(&quot;\nFlask App: %s&quot; % app.import_name); break&#10;    except NoAppException: pass">
+    <envs>
+      <env key="FLASK_APP" value="app" />
+    </envs>
+    <option name="myCustomStartScript" value="import sys; print('Python %s on %s' % (sys.version, sys.platform)); sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;from flask.cli import ScriptInfo, NoAppException&#10;for module in [&quot;main.py&quot;, &quot;wsgi.py&quot;, &quot;app.py&quot;]:&#10;    try: locals().update(ScriptInfo(app_import_path=module, create_app=None).load_app().make_shell_context()); print(&quot;\nFlask App: %s&quot; % app.import_name); break&#10;    except NoAppException: pass" />
+    <option name="myEnvs">
+      <map>
+        <entry key="FLASK_APP" value="app" />
+      </map>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -68,7 +82,9 @@
       <updated>1764609161738</updated>
       <workItem from="1764609172512" duration="145000" />
       <workItem from="1764609346949" duration="14103000" />
-      <workItem from="1764629667116" duration="3365000" />
+      <workItem from="1764629667116" duration="5449000" />
+      <workItem from="1764776365852" duration="502000" />
+      <workItem from="1764777712454" duration="1595000" />
     </task>
     <task id="LOCAL-00001" summary="Add initial implementation of Split Bill application with Flask&#10;&#10;- Create main application file (app.py) for managing expenses&#10;- Implement data models for persons, items, and shared costs (models.py)&#10;- Add calculation logic for expense distribution (calculator.py)&#10;- Develop HTML interface for user interaction (index.html)&#10;- Include CSS for styling (style.css)&#10;- Set up instructions and quickstart guide (INSTRUCCIONES.txt, QUICKSTART.md)&#10;- Add .gitignore for environment files and IDE settings&#10;- Implement basic test script for functionality verification (test.py)">
       <option name="closed" value="true" />
@@ -126,7 +142,15 @@
       <option name="project" value="LOCAL" />
       <updated>1764619752406</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Add Firebase Firestore integration and optimize performance with caching">
+      <option name="closed" value="true" />
+      <created>1764633076899</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1764633076899</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -140,7 +164,8 @@
     <MESSAGE value="Implement multi-day support in Split Bill application&#10;&#10;- Added functionality to specify the number of days for each trip.&#10;- Updated models to include a days field for trips, items, and shared costs.&#10;- Enhanced item and shared cost management to associate them with specific days.&#10;- Modified the user interface to allow input of days and display daily summaries.&#10;- Implemented calculations for totals by day and overall trip summary.&#10;- Introduced a verification panel to ensure total expenses match distributed amounts." />
     <MESSAGE value="Refactor item toggle response and remove toast notifications" />
     <MESSAGE value="Implement data persistence with automatic save and load from JSON file" />
-    <option name="LAST_COMMIT_MESSAGE" value="Implement data persistence with automatic save and load from JSON file" />
+    <MESSAGE value="Add Firebase Firestore integration and optimize performance with caching" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add Firebase Firestore integration and optimize performance with caching" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/split_bill$database.coverage" NAME="database Coverage Results" MODIFIED="1764628666901" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />

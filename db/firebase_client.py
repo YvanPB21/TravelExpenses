@@ -15,6 +15,7 @@ class FirebaseConfig:
     """Configuración de Firebase."""
     credentials_path: Optional[str] = None
     project_id: Optional[str] = None
+    database_id: Optional[str] = None  # ID de la base de datos (por defecto es "(default)")
 
 
 _initialized = False
@@ -85,6 +86,18 @@ def initialize_firebase(config: FirebaseConfig | None = None):
 def get_firestore_client(config: FirebaseConfig | None = None):
     """Obtiene cliente de Firestore."""
     initialize_firebase(config)
-    return firestore.client()
+
+    # Obtener database_id de la configuración o variable de entorno
+    database_id = None
+    if config and config.database_id:
+        database_id = config.database_id
+    elif os.environ.get('FIRESTORE_DATABASE_ID'):
+        database_id = os.environ.get('FIRESTORE_DATABASE_ID')
+
+    # Si se especifica database_id, usarlo; si no, Firestore usa "(default)"
+    if database_id:
+        return firestore.client(database_id=database_id)
+    else:
+        return firestore.client()
 
 

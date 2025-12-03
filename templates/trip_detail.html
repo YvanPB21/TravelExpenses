@@ -190,17 +190,75 @@
                             <input type="hidden" name="day" value="{{ day_data.day_number }}">
                             <input type="text" name="name" placeholder="Nombre del costo" required>
                             <input type="number" name="cost" placeholder="Costo" step="0.01" min="0.01" required>
+                            
+                            <!-- Chips seleccionables de "Pagado por" -->
+                            <div class="paid-by-chips-container" style="flex: 1 1 100%;">
+                                <label class="paid-by-label">💳 Pagado por (selecciona una o más personas):</label>
+                                <div class="chips-wrapper">
+                                    {% for person in persons %}
+                                    <label class="chip-person" onclick="toggleChip(this)">
+                                        <input type="checkbox" name="paid_by_person_ids[]" value="{{ person.id }}">
+                                        {{ person.name }}
+                                    </label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            
                             <button type="submit" class="btn btn-success">Agregar</button>
                         </form>
 
                         {% if day_data.day_shared_costs %}
                         <div class="shared-costs-list">
                             {% for sc in day_data.day_shared_costs %}
-                            <div class="shared-cost-item">
-                                <span class="shared-name">{{ sc.name }}</span>
-                                <span class="shared-cost">${{ "%.2f"|format(sc.cost) }}</span>
-                                <form action="{{ url_for('remove_shared_cost', trip_id=current_trip.id, shared_cost_id=sc.id) }}" method="POST" style="display: inline;">
-                                    <button type="submit" class="btn btn-danger btn-small">✕</button>
+                            <div class="shared-cost-item" id="shared-item-{{ sc.id }}">
+                                <div class="shared-cost-info">
+                                    <span class="shared-name">{{ sc.name }}</span>
+                                    <span class="shared-cost">${{ "%.2f"|format(sc.cost) }}</span>
+                                    <div class="shared-paid-by">
+                                        {% if sc.paid_by_person_ids %}
+                                            <span class="paid-by-label-small">💳</span>
+                                            {% for person in persons %}
+                                                {% if person.id in sc.paid_by_person_ids %}
+                                                    <span class="paid-by-badge">{{ person.name }}</span>
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% else %}
+                                            <span class="no-paid-badge">Sin registrar</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="shared-cost-actions">
+                                    <button type="button" class="btn btn-secondary btn-small" onclick="toggleEditShared({{ sc.id }})">Editar</button>
+                                    <form action="{{ url_for('remove_shared_cost', trip_id=current_trip.id, shared_cost_id=sc.id) }}" method="POST" style="display: inline;">
+                                        <button type="submit" class="btn btn-danger btn-small" onclick="return confirm('¿Eliminar este costo compartido?')">Eliminar</button>
+                                    </form>
+                                </div>
+                            </div>
+                            <!-- Formulario de edición (oculto por defecto) -->
+                            <div id="edit-shared-{{ sc.id }}" class="edit-shared-form" style="display: none;">
+                                <form action="{{ url_for('update_shared_cost', trip_id=current_trip.id, shared_cost_id=sc.id) }}" method="POST" class="edit-form">
+                                    <div class="edit-form-grid">
+                                        <input type="text" name="name" value="{{ sc.name }}" placeholder="Nombre" required>
+                                        <input type="number" name="cost" value="{{ sc.cost }}" placeholder="Costo" step="0.01" min="0.01" required>
+                                        <input type="number" name="day" value="{{ sc.day }}" placeholder="Día" min="1" required>
+                                        
+                                        <!-- Chips de "Pagado por" en edición -->
+                                        <div class="paid-by-chips-edit">
+                                            <label class="paid-by-label">💳 Pagado por:</label>
+                                            <div class="chips-wrapper">
+                                                {% for person in persons %}
+                                                <label class="chip-person {% if person.id in sc.paid_by_person_ids %}selected{% endif %}" onclick="toggleChip(this)">
+                                                    <input type="checkbox" name="paid_by_person_ids[]" value="{{ person.id }}"
+                                                           {% if person.id in sc.paid_by_person_ids %}checked{% endif %}>
+                                                    {{ person.name }}
+                                                </label>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                        
+                                        <button type="submit" class="btn btn-success btn-small">Guardar</button>
+                                        <button type="button" class="btn btn-secondary btn-small" onclick="toggleEditShared({{ sc.id }})">Cancelar</button>
+                                    </div>
                                 </form>
                             </div>
                             {% endfor %}
@@ -392,6 +450,13 @@
     </div>
 
     <script>
+        // Toggle chip de persona (pagado por)
+        function toggleChip(chipElement) {
+            const checkbox = chipElement.querySelector('input[type="checkbox"]');
+            checkbox.checked = !checkbox.checked;
+            chipElement.classList.toggle('selected', checkbox.checked);
+        }
+
         // Mostrar/ocultar formulario de edición de ítem
         function toggleEditItem(itemId) {
             const editRow = document.getElementById(`edit-row-${itemId}`);
@@ -399,6 +464,16 @@
                 editRow.style.display = 'table-row';
             } else {
                 editRow.style.display = 'none';
+            }
+        }
+
+        // Mostrar/ocultar formulario de edición de costo compartido
+        function toggleEditShared(sharedId) {
+            const editForm = document.getElementById(`edit-shared-${sharedId}`);
+            if (editForm.style.display === 'none') {
+                editForm.style.display = 'block';
+            } else {
+                editForm.style.display = 'none';
             }
         }
 

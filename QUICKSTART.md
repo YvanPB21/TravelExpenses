@@ -13,14 +13,30 @@ pip install -r requirements.txt
 #### Opción A: Usar Firebase (recomendado para producción)
 
 1. Crea un proyecto en [Firebase Console](https://console.firebase.google.com/)
-2. Habilita Firestore Database (modo test)
+2. Habilita Firestore Database:
+   - Ve a **Firestore Database**
+   - Haz clic en **Create database**
+   - Elige location: **southamerica-east1** (São Paulo)
+   - Database ID: déjalo como `(default)` o usa un nombre específico como `split-bill-db`
+   - Mode: **Test mode** (para desarrollo)
 3. Descarga credenciales: **Configuración > Cuentas de servicio > Generar nueva clave privada**
 4. Guarda el archivo como `firebase-credentials.json`
-5. Configura variable de entorno:
+5. **Si tu base de datos NO se llama `(default)`**, configura el nombre:
 
-```powershell
-$env:GOOGLE_APPLICATION_CREDENTIALS="C:\dev\split_bill\firebase-credentials.json"
-```
+   **Opción 1 (Fácil)**: Ejecuta el script de configuración:
+   ```powershell
+   python configure_database.py
+   ```
+
+   **Opción 2 (Manual)**: Edita `app.py` línea ~16:
+   ```python
+   database_id = os.getenv('FIRESTORE_DATABASE_ID', 'TU_NOMBRE_DE_DB')
+   ```
+
+   **Opción 3 (Variable de entorno)**: Crea archivo `.env`:
+   ```
+   FIRESTORE_DATABASE_ID=split-bill-db
+   ```
 
 #### Opción B: Usar JSON Local (desarrollo rápido)
 

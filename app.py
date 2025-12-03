@@ -2,15 +2,28 @@
 Aplicación Flask para división de gastos grupales con soporte para múltiples viajes
 """
 import sys
+import os
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 from models import DataStore
 from calculator import BillCalculator
+from db.firebase_client import FirebaseConfig
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'dev-secret-key-change-in-production'
 
+# Configurar Firebase
+firebase_config = None
+credentials_file = 'firebase-credentials.json'
+if os.path.exists(credentials_file):
+    # El nombre de la base de datos puede venir de variable de entorno o usar uno específico
+    database_id = os.getenv('FIRESTORE_DATABASE_ID', 'travel-expenses')
+    firebase_config = FirebaseConfig(
+        credentials_path=credentials_file,
+        database_id=database_id
+    )
+
 # Almacenamiento en memoria
-data_store = DataStore()
+data_store = DataStore(firebase_config=firebase_config)
 calculator = BillCalculator(data_store)
 
 
@@ -231,18 +244,46 @@ def add_shared_cost():
     name = request.form.get('name', '').strip()
     cost = request.form.get('cost', 0)
     day = request.form.get('day', 1)
+    paid_by_person_ids = request.form.getlist('paid_by_person_ids[]')
 
     try:
         cost = float(cost)
         day = int(day)
+        # Convertir paid_by_person_ids a lista de enteros
+        paid_by_person_ids = [int(pid) for pid in paid_by_person_ids if pid]
+        
         if name and cost > 0 and trip_id and day > 0:
             data_store.set_current_trip(int(trip_id))
-            data_store.add_shared_cost(name, cost, day)
+            data_store.add_shared_cost(name, cost, day, paid_by_person_ids)
             return redirect(url_for('trip_detail', trip_id=trip_id))
     except ValueError:
         pass
 
     return redirect(url_for('index'))
+
+
+@app.route('/shared/update/<int:trip_id>/<int:shared_cost_id>', methods=['POST'])
+def update_shared_cost(trip_id, shared_cost_id):
+    """Actualizar un costo compartido"""
+    data_store.set_current_trip(trip_id)
+
+    name = request.form.get('name', '').strip()
+    cost = request.form.get('cost')
+    day = request.form.get('day')
+    paid_by_person_ids = request.form.getlist('paid_by_person_ids[]')
+
+    try:
+        cost = float(cost) if cost else None
+        day = int(day) if day else None
+        # Convertir paid_by_person_ids a lista de enteros
+        paid_by_person_ids = [int(pid) for pid in paid_by_person_ids if pid] if paid_by_person_ids else None
+
+        data_store.update_shared_cost(shared_cost_id, name=name, cost=cost,
+                                     day=day, paid_by_person_ids=paid_by_person_ids)
+    except ValueError:
+        pass
+
+    return redirect(url_for('trip_detail', trip_id=trip_id))
 
 
 @app.route('/shared/remove/<int:trip_id>/<int:shared_cost_id>', methods=['POST'])

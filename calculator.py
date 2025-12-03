@@ -155,9 +155,19 @@ class BillCalculator:
         for person in self.data_store.persons:
             # Calcular lo que pagó esta persona
             total_paid = 0.0
+            
+            # Sumar items pagados
             for item in self.data_store.items:
                 if item.paid_by_person_id == person.id:
                     total_paid += item.total_cost
+
+            # Sumar costos compartidos pagados (dividido equitativamente)
+            for shared_cost in self.data_store.shared_costs:
+                if person.id in shared_cost.paid_by_person_ids:
+                    # Dividir el costo entre el número de personas que pagaron
+                    num_payers = len(shared_cost.paid_by_person_ids)
+                    if num_payers > 0:
+                        total_paid += shared_cost.cost / num_payers
 
             # Lo que debe (su consumo total)
             total_owes = totals.get(person.id, {}).get('total', 0.0)
