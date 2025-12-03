@@ -16,7 +16,7 @@ firebase_config = None
 credentials_file = 'firebase-credentials.json'
 if os.path.exists(credentials_file):
     # El nombre de la base de datos puede venir de variable de entorno o usar uno específico
-    database_id = os.getenv('FIRESTORE_DATABASE_ID', 'travel-expenses')
+    database_id = 'travel-expenses'
     firebase_config = FirebaseConfig(
         credentials_path=credentials_file,
         database_id=database_id
