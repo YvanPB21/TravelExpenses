@@ -99,6 +99,52 @@
             </section>
         </div>
     </div>
+
+    <!-- Loader Overlay -->
+    <div class="loader-overlay" id="globalLoader">
+        <div class="loader-container">
+            <div class="loader-spinner"></div>
+            <p class="loader-text">Cargando...</p>
+        </div>
+    </div>
+
+    <script>
+        // Funciones del Loader
+        function showLoader(message = 'Cargando...') {
+            const loader = document.getElementById('globalLoader');
+            const loaderText = loader.querySelector('.loader-text');
+            loaderText.textContent = message;
+            loader.classList.add('show');
+        }
+
+        function hideLoader() {
+            const loader = document.getElementById('globalLoader');
+            loader.classList.remove('show');
+        }
+
+        // Mostrar loader automáticamente en todos los formularios
+        document.addEventListener('DOMContentLoaded', function() {
+            const forms = document.querySelectorAll('form');
+            forms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    // Verificar si el formulario requiere confirmación
+                    const onsubmitAttr = form.getAttribute('onsubmit');
+                    if (onsubmitAttr && onsubmitAttr.includes('confirm')) {
+                        // Para formularios con confirmación, mostrar loader solo si se confirma
+                        const confirmMatch = onsubmitAttr.match(/confirm\('([^']+)'\)/);
+                        if (confirmMatch) {
+                            const message = confirmMatch[1];
+                            if (!confirm(message)) {
+                                e.preventDefault();
+                                return false;
+                            }
+                        }
+                    }
+                    showLoader('Procesando...');
+                });
+            });
+        });
+    </script>
 </body>
 </html>
 

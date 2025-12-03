@@ -15,8 +15,9 @@ app.config['SECRET_KEY'] = 'dev-secret-key-change-in-production'
 firebase_config = None
 credentials_file = 'firebase-credentials.json'
 if os.path.exists(credentials_file):
-    # El nombre de la base de datos puede venir de variable de entorno o usar uno específico
-    database_id = 'travel-expenses'
+    # Solo usar database_id si está explícitamente configurado en variable de entorno
+    # Por defecto usará "(default)" que es la base de datos estándar de Firebase
+    database_id = os.getenv('FIRESTORE_DATABASE_ID')  # None si no está configurado
     firebase_config = FirebaseConfig(
         credentials_path=credentials_file,
         database_id=database_id

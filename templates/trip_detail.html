@@ -449,7 +449,49 @@
         </div>
     </div>
 
+    <!-- Loader Overlay -->
+    <div class="loader-overlay" id="globalLoader">
+        <div class="loader-container">
+            <div class="loader-spinner"></div>
+            <p class="loader-text">Cargando...</p>
+        </div>
+    </div>
+
     <script>
+        // Funciones del Loader
+        function showLoader(message = 'Cargando...') {
+            const loader = document.getElementById('globalLoader');
+            const loaderText = loader.querySelector('.loader-text');
+            loaderText.textContent = message;
+            loader.classList.add('show');
+        }
+
+        function hideLoader() {
+            const loader = document.getElementById('globalLoader');
+            loader.classList.remove('show');
+        }
+
+        // Mostrar loader automáticamente en todos los formularios
+        document.addEventListener('DOMContentLoaded', function() {
+            const forms = document.querySelectorAll('form');
+            forms.forEach(form => {
+                // No aplicar loader a formularios de edición inline
+                if (!form.classList.contains('edit-form')) {
+                    form.addEventListener('submit', function(e) {
+                        // Verificar si el formulario requiere confirmación
+                        const hasConfirm = form.getAttribute('onsubmit') && form.getAttribute('onsubmit').includes('confirm');
+                        if (!hasConfirm) {
+                            showLoader('Procesando...');
+                        } else {
+                            // Para formularios con confirmación, mostrar loader solo si se confirma
+                            const originalOnsubmit = form.getAttribute('onsubmit');
+                            form.setAttribute('onsubmit', originalOnsubmit.replace('return confirm', 'if (confirm') + ') { showLoader("Procesando..."); return true; } return false;');
+                        }
+                    });
+                }
+            });
+        });
+
         // Toggle chip de persona (pagado por)
         function toggleChip(chipElement) {
             const checkbox = chipElement.querySelector('input[type="checkbox"]');
@@ -495,6 +537,7 @@
 
         // Alternar checkbox y actualizar SOLO los totales (sin recargar)
         async function togglePersonItem(itemId, personId, tripId) {
+            showLoader('Actualizando...');
             try {
                 const response = await fetch('{{ url_for("toggle_item_person") }}', {
                     method: 'POST',
@@ -512,6 +555,7 @@
                         if (data.days_totals) {
                             updateDaysSummaries(data.days_totals);
                         }
+                        hideLoader();
                     } else {
                         location.reload();
                     }

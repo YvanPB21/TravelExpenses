@@ -96,7 +96,15 @@ def get_firestore_client(config: FirebaseConfig | None = None):
 
     # Si se especifica database_id, usarlo; si no, Firestore usa "(default)"
     if database_id:
-        return firestore.client(database_id=database_id)
+        # Intentar con database_id (versiones recientes de firebase-admin)
+        # Si falla, usar sin parámetro (retrocompatibilidad)
+        try:
+            return firestore.client(database=database_id)
+        except TypeError:
+            # Versión antigua de firebase-admin que no soporta database_id
+            print(f"⚠️ Warning: firebase-admin no soporta database_id. Usando base de datos por defecto.")
+            print(f"   Para usar '{database_id}', actualiza firebase-admin: pip install --upgrade firebase-admin")
+            return firestore.client()
     else:
         return firestore.client()
 
