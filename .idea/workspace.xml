@@ -4,10 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="63bd1a63-815d-47a9-9e63-ea284e6542b9" name="Changes" comment="Refactor Flask server startup to use environment variables for port and debug mode; update README with Koyeb deployment instructions">
-      <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
+    <list default="true" id="63bd1a63-815d-47a9-9e63-ea284e6542b9" name="Changes" comment="Update Flask server port to 8000 and adjust README for Koyeb deployment instructions">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/style.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/trip_detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/trip_detail.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -79,7 +79,7 @@
       <workItem from="1764629667116" duration="5449000" />
       <workItem from="1764776365852" duration="502000" />
       <workItem from="1764777712454" duration="5042000" />
-      <workItem from="1764824167892" duration="2993000" />
+      <workItem from="1764824167892" duration="5253000" />
     </task>
     <task id="LOCAL-00001" summary="Add initial implementation of Split Bill application with Flask&#10;&#10;- Create main application file (app.py) for managing expenses&#10;- Implement data models for persons, items, and shared costs (models.py)&#10;- Add calculation logic for expense distribution (calculator.py)&#10;- Develop HTML interface for user interaction (index.html)&#10;- Include CSS for styling (style.css)&#10;- Set up instructions and quickstart guide (INSTRUCCIONES.txt, QUICKSTART.md)&#10;- Add .gitignore for environment files and IDE settings&#10;- Implement basic test script for functionality verification (test.py)">
       <option name="closed" value="true" />
@@ -177,11 +177,30 @@
       <option name="project" value="LOCAL" />
       <updated>1764826316559</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="Update Flask server port to 8000 and adjust README for Koyeb deployment instructions">
+      <option name="closed" value="true" />
+      <created>1764827210498</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1764827210498</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Add initial implementation of Split Bill application with Flask&#10;&#10;- Create main application file (app.py) for managing expenses&#10;- Implement data models for persons, items, and shared costs (models.py)&#10;- Add calculation logic for expense distribution (calculator.py)&#10;- Develop HTML interface for user interaction (index.html)&#10;- Include CSS for styling (style.css)&#10;- Set up instructions and quickstart guide (INSTRUCCIONES.txt, QUICKSTART.md)&#10;- Add .gitignore for environment files and IDE settings&#10;- Implement basic test script for functionality verification (test.py)" />
@@ -194,7 +213,8 @@
     <MESSAGE value="Add Firebase Firestore integration and optimize performance with caching" />
     <MESSAGE value="Fix database ID assignment to use a hardcoded value for Firestore" />
     <MESSAGE value="Refactor Flask server startup to use environment variables for port and debug mode; update README with Koyeb deployment instructions" />
-    <option name="LAST_COMMIT_MESSAGE" value="Refactor Flask server startup to use environment variables for port and debug mode; update README with Koyeb deployment instructions" />
+    <MESSAGE value="Update Flask server port to 8000 and adjust README for Koyeb deployment instructions" />
+    <option name="LAST_COMMIT_MESSAGE" value="Update Flask server port to 8000 and adjust README for Koyeb deployment instructions" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/split_bill$database.coverage" NAME="database Coverage Results" MODIFIED="1764628666901" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
