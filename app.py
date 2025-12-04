@@ -83,7 +83,7 @@ def trip_detail(trip_id):
 @app.route('/trip/add', methods=['POST'])
 def add_trip():
     """Crear un nuevo viaje"""
-    name = request.form.get('name', '').strip()
+    name = request.form.get('name', '').strip().upper()
     description = request.form.get('description', '').strip()
     days = request.form.get('days', 1)
 
@@ -112,7 +112,7 @@ def remove_trip(trip_id):
 def add_person():
     """Agregar una persona"""
     trip_id = request.form.get('trip_id')
-    name = request.form.get('name', '').strip()
+    name = request.form.get('name', '').strip().upper()
     if name and trip_id:
         data_store.set_current_trip(int(trip_id))
         data_store.add_person(name)
@@ -133,7 +133,7 @@ def remove_person(trip_id, person_id):
 def add_item():
     """Agregar un ítem"""
     trip_id = request.form.get('trip_id')
-    name = request.form.get('name', '').strip()
+    name = request.form.get('name', '').strip().upper()
     quantity = request.form.get('quantity', 1)
     unit_price = request.form.get('unit_price', 0)
     day = request.form.get('day', 1)
@@ -169,7 +169,7 @@ def update_item(trip_id, item_id):
     """Actualizar un ítem"""
     data_store.set_current_trip(trip_id)
 
-    name = request.form.get('name', '').strip()
+    name = request.form.get('name', '').strip().upper()
     quantity = request.form.get('quantity')
     unit_price = request.form.get('unit_price')
     day = request.form.get('day')
@@ -241,7 +241,7 @@ def toggle_item_person():
 def add_shared_cost():
     """Agregar un costo compartido"""
     trip_id = request.form.get('trip_id')
-    name = request.form.get('name', '').strip()
+    name = request.form.get('name', '').strip().upper()
     cost = request.form.get('cost', 0)
     paid_by_person_ids = request.form.getlist('paid_by_person_ids[]')
 
@@ -265,7 +265,7 @@ def update_shared_cost(trip_id, shared_cost_id):
     """Actualizar un costo compartido"""
     data_store.set_current_trip(trip_id)
 
-    name = request.form.get('name', '').strip()
+    name = request.form.get('name', '').strip().upper()
     cost = request.form.get('cost')
     paid_by_person_ids = request.form.getlist('paid_by_person_ids[]')
 

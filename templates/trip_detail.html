@@ -349,6 +349,9 @@
                                 <span class="verify-icon warning">!</span> Advertencia de Balance
                                 {% endif %}
                             </h3>
+                            <button type="button" class="btn-refresh-verification" onclick="refreshVerification()" title="Refrescar verificación">
+                                🔄 Refrescar
+                            </button>
                         </div>
                         <div class="verification-grid">
                             <div class="verify-card">
@@ -711,6 +714,13 @@
                     if (footer) footer.textContent = `S/. ${dayData.day_total.toFixed(2)}`;
                 }
             }
+        }
+
+        // Refrescar verificación de balance
+        function refreshVerification() {
+            showLoader('Actualizando verificación...');
+            // Recargar la página completa para obtener datos actualizados
+            window.location.reload();
         }
     </script>
 </body>
