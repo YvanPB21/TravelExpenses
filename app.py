@@ -305,7 +305,7 @@ def clear_all(trip_id):
 
 
 if __name__ == '__main__':
-    port = int(os.getenv('PORT', '8080'))
+    port = int(os.getenv('PORT', '8000'))
     debug_mode = os.getenv('FLASK_DEBUG', 'false').lower() == 'true'
     print(f"Starting Flask server on http://0.0.0.0:{port} (debug={debug_mode})", flush=True)
     app.run(debug=debug_mode, host='0.0.0.0', port=port)

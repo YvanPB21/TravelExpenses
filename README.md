@@ -160,7 +160,7 @@ El total que debe pagar cada persona es:
    - En el panel de Koyeb crea un servicio → *Deploy from GitHub* y autoriza el acceso al repo
 2. **Configurar el build**
    - Selecciona la rama principal y elige “Dockerfile” como estrategia de despliegue (Koyeb lo detectará en la raíz)
-   - Define `PORT=8080` en la sección de variables (opcional pero explícito)
+   - Define `PORT=8000` en la sección de variables (opcional pero explícito)
 3. **Gestionar secretos y variables**
    - Sube `firebase-credentials.json` como *secret* y móntalo en `/app/firebase-credentials.json`
    - Variables recomendadas:
