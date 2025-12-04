@@ -491,12 +491,6 @@
                 {% endif %}
             </section>
 
-            <!-- Acciones Generales -->
-            <section class="actions-section">
-                <form action="{{ url_for('clear_all', trip_id=current_trip.id) }}" method="POST" onsubmit="return confirm('¿Estás seguro de que quieres limpiar todos los datos de este viaje?');">
-                    <button type="submit" class="btn btn-warning">🗑️ Limpiar Todo</button>
-                </form>
-            </section>
         </div>
     </div>
 
