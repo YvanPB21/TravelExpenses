@@ -56,14 +56,12 @@ def trip_detail(trip_id):
     days_data = []
     for day in range(1, current_trip.days + 1):
         day_items = data_store.get_items_by_day(day)
-        day_shared = data_store.get_shared_costs_by_day(day)
         day_totals = calculator.calculate_totals_by_day(day)
         day_total = calculator.get_day_total(day)
 
         days_data.append({
             'day_number': day,
             'day_items': day_items,
-            'day_shared_costs': day_shared,
             'day_totals': day_totals,
             'day_total': day_total
         })
@@ -72,6 +70,7 @@ def trip_detail(trip_id):
         'trip_detail.html',
         current_trip=current_trip,
         persons=data_store.persons,
+        shared_costs=data_store.shared_costs,
         totals=totals,
         grand_total=grand_total,
         summary=summary,
@@ -244,18 +243,16 @@ def add_shared_cost():
     trip_id = request.form.get('trip_id')
     name = request.form.get('name', '').strip()
     cost = request.form.get('cost', 0)
-    day = request.form.get('day', 1)
     paid_by_person_ids = request.form.getlist('paid_by_person_ids[]')
 
     try:
         cost = float(cost)
-        day = int(day)
         # Convertir paid_by_person_ids a lista de enteros
         paid_by_person_ids = [int(pid) for pid in paid_by_person_ids if pid]
         
-        if name and cost > 0 and trip_id and day > 0:
+        if name and cost > 0 and trip_id:
             data_store.set_current_trip(int(trip_id))
-            data_store.add_shared_cost(name, cost, day, paid_by_person_ids)
+            data_store.add_shared_cost(name, cost, paid_by_person_ids)
             return redirect(url_for('trip_detail', trip_id=trip_id))
     except ValueError:
         pass
@@ -270,17 +267,15 @@ def update_shared_cost(trip_id, shared_cost_id):
 
     name = request.form.get('name', '').strip()
     cost = request.form.get('cost')
-    day = request.form.get('day')
     paid_by_person_ids = request.form.getlist('paid_by_person_ids[]')
 
     try:
         cost = float(cost) if cost else None
-        day = int(day) if day else None
         # Convertir paid_by_person_ids a lista de enteros
         paid_by_person_ids = [int(pid) for pid in paid_by_person_ids if pid] if paid_by_person_ids else None
 
         data_store.update_shared_cost(shared_cost_id, name=name, cost=cost,
-                                     day=day, paid_by_person_ids=paid_by_person_ids)
+                                     paid_by_person_ids=paid_by_person_ids)
     except ValueError:
         pass
 

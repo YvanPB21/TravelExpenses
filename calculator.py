@@ -40,21 +40,12 @@ class BillCalculator:
                     if person_id in totals:
                         totals[person_id]['items_total'] += cost_per_person
 
-        # Calcular costos compartidos del día
-        shared_costs_day = self.data_store.get_shared_costs_by_day(day)
-        if len(self.data_store.persons) > 0:
-            total_shared = sum(sc.cost for sc in shared_costs_day)
-            shared_per_person = total_shared / len(self.data_store.persons)
+        # Los costos compartidos ya no se calculan por día
+        # Se calculan en el total general
 
-            for person_id in totals:
-                totals[person_id]['shared_total'] = shared_per_person
-
-        # Calcular total del día
+        # Calcular total del día (solo items)
         for person_id in totals:
-            totals[person_id]['total'] = (
-                totals[person_id]['items_total'] +
-                totals[person_id]['shared_total']
-            )
+            totals[person_id]['total'] = totals[person_id]['items_total']
 
         return totals
 
@@ -84,25 +75,36 @@ class BillCalculator:
                 'by_day': {}
             }
 
-        # Calcular para cada día
+        # Calcular para cada día (solo items)
         for day in range(1, current_trip.days + 1):
             day_totals = self.calculate_totals_by_day(day)
             for person_id, amounts in day_totals.items():
                 if person_id in totals:
                     totals[person_id]['items_total'] += amounts['items_total']
-                    totals[person_id]['shared_total'] += amounts['shared_total']
-                    totals[person_id]['total'] += amounts['total']
-                    totals[person_id]['by_day'][day] = amounts['total']
+                    totals[person_id]['by_day'][day] = amounts['items_total']
+
+        # Calcular costos compartidos (aplicados al total general)
+        if len(self.data_store.persons) > 0:
+            total_shared = sum(sc.cost for sc in self.data_store.shared_costs)
+            shared_per_person = total_shared / len(self.data_store.persons)
+
+            for person_id in totals:
+                totals[person_id]['shared_total'] = shared_per_person
+
+        # Calcular total final
+        for person_id in totals:
+            totals[person_id]['total'] = (
+                totals[person_id]['items_total'] +
+                totals[person_id]['shared_total']
+            )
 
         return totals
 
     def get_day_total(self, day: int) -> float:
-        """Calcula el total de gastos de un día específico"""
+        """Calcula el total de gastos de un día específico (solo items)"""
         items_day = self.data_store.get_items_by_day(day)
-        shared_day = self.data_store.get_shared_costs_by_day(day)
         items_total = sum(item.total_cost for item in items_day)
-        shared_total = sum(sc.cost for sc in shared_day)
-        return items_total + shared_total
+        return items_total
 
     def get_grand_total(self) -> float:
         """Calcula el total general de todos los gastos"""

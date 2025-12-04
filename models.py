@@ -49,7 +49,6 @@ class SharedCost:
     id: int
     name: str
     cost: float
-    day: int = 1  # Día del viaje al que pertenece este costo
     paid_by_person_ids: Set[int] = field(default_factory=set)  # IDs de personas que pagaron este costo
 
 
@@ -205,7 +204,6 @@ class DataStore:
             'id': sc.id,
             'name': sc.name,
             'cost': sc.cost,
-            'day': sc.day,
             'paid_by_person_ids': list(sc.paid_by_person_ids)
         }
 
@@ -214,7 +212,6 @@ class DataStore:
             id=data['id'],
             name=data['name'],
             cost=data['cost'],
-            day=data.get('day', 1),
             paid_by_person_ids=set(data.get('paid_by_person_ids', []))
         )
 
@@ -330,14 +327,6 @@ class DataStore:
 
         return [item for item in self.items if item.day == day]
 
-    def get_shared_costs_by_day(self, day: int) -> List[SharedCost]:
-        """Obtiene los costos compartidos de un día específico"""
-        if self.use_firestore:
-            if self.current_trip_id:
-                return self._store.get_shared_costs_by_day(self.current_trip_id, day)
-            return []
-
-        return [sc for sc in self.shared_costs if sc.day == day]
 
     # Gestión de personas
     def add_person(self, name: str) -> Optional[Person]:
@@ -468,18 +457,17 @@ class DataStore:
         return False
 
     # Gestión de costos compartidos
-    def add_shared_cost(self, name: str, cost: float, day: int = 1, paid_by_person_ids: List[int] = None) -> Optional[SharedCost]:
+    def add_shared_cost(self, name: str, cost: float, paid_by_person_ids: List[int] = None) -> Optional[SharedCost]:
         if not self.current_trip_id:
             return None
 
         if self.use_firestore:
-            return self._store.add_shared_cost(self.current_trip_id, name, cost, day, paid_by_person_ids or [])
+            return self._store.add_shared_cost(self.current_trip_id, name, cost, paid_by_person_ids or [])
 
         shared_cost = SharedCost(
             id=self._next_shared_cost_id[self.current_trip_id],
             name=name,
             cost=cost,
-            day=day,
             paid_by_person_ids=set(paid_by_person_ids or [])
         )
         self.shared_costs.append(shared_cost)
@@ -512,14 +500,14 @@ class DataStore:
         return None
 
     def update_shared_cost(self, shared_cost_id: int, name: str = None, cost: float = None,
-                          day: int = None, paid_by_person_ids: List[int] = None) -> bool:
+                          paid_by_person_ids: List[int] = None) -> bool:
         """Actualiza un costo compartido existente"""
         if self.use_firestore:
             if not self.current_trip_id:
                 return False
             return self._store.update_shared_cost(
                 self.current_trip_id, shared_cost_id,
-                name=name, cost=cost, day=day, paid_by_person_ids=paid_by_person_ids
+                name=name, cost=cost, paid_by_person_ids=paid_by_person_ids
             )
 
         shared_cost = self.get_shared_cost(shared_cost_id)
@@ -528,8 +516,6 @@ class DataStore:
                 shared_cost.name = name
             if cost is not None:
                 shared_cost.cost = cost
-            if day is not None:
-                shared_cost.day = day
             if paid_by_person_ids is not None:
                 shared_cost.paid_by_person_ids = set(paid_by_person_ids)
             self.save_to_file()

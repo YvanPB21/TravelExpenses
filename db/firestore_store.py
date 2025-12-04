@@ -383,14 +383,13 @@ class FirestoreStore:
             return None
         return self._doc_to_shared_cost(doc)
 
-    def add_shared_cost(self, trip_id: int, name: str, cost: float, day: int = 1, paid_by_person_ids: List[int] = None) -> SharedCost:
+    def add_shared_cost(self, trip_id: int, name: str, cost: float, paid_by_person_ids: List[int] = None) -> SharedCost:
         """Agrega un costo compartido a un viaje."""
         shared_cost_id = self._get_next_id('shared_cost', trip_id)
         shared_cost = SharedCost(
             id=shared_cost_id,
             name=name,
             cost=cost,
-            day=day,
             paid_by_person_ids=set(paid_by_person_ids or [])
         )
 
@@ -399,7 +398,6 @@ class FirestoreStore:
             'id': shared_cost.id,
             'name': shared_cost.name,
             'cost': shared_cost.cost,
-            'day': shared_cost.day,
             'paid_by_person_ids': paid_by_person_ids or []
         }
 
@@ -418,8 +416,6 @@ class FirestoreStore:
             update_data['name'] = fields['name']
         if 'cost' in fields and fields['cost'] is not None:
             update_data['cost'] = fields['cost']
-        if 'day' in fields and fields['day'] is not None:
-            update_data['day'] = fields['day']
         if 'paid_by_person_ids' in fields and fields['paid_by_person_ids'] is not None:
             update_data['paid_by_person_ids'] = fields['paid_by_person_ids']
 
@@ -434,11 +430,6 @@ class FirestoreStore:
         self._invalidate_cache('shared_costs', f'trip_{trip_id}')
         return True
 
-    def get_shared_costs_by_day(self, trip_id: int, day: int) -> List[SharedCost]:
-        """Obtiene costos compartidos de un día específico."""
-        # Usa caché de list_shared_costs y filtra en memoria (más rápido)
-        all_shared = self.list_shared_costs(trip_id)
-        return [sc for sc in all_shared if sc.day == day]
 
     def clear_trip_data(self, trip_id: int):
         """Limpia todos los datos de un viaje (personas, items, shared costs)."""
@@ -579,7 +570,6 @@ class FirestoreStore:
             id=data['id'],
             name=data['name'],
             cost=data['cost'],
-            day=data.get('day', 1),
             paid_by_person_ids=set(data.get('paid_by_person_ids', []))
         )
 
