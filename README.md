@@ -153,6 +153,23 @@ El total que debe pagar cada persona es:
 - $5 de crédito mensual gratis
 - [Railway.app](https://railway.app/)
 
+## Despliegue en Koyeb (siempre activo)
+
+1. **Conectar tu repositorio de GitHub**
+   - Sube este proyecto (con el `Dockerfile` incluido) a un repositorio privado o público
+   - En el panel de Koyeb crea un servicio → *Deploy from GitHub* y autoriza el acceso al repo
+2. **Configurar el build**
+   - Selecciona la rama principal y elige “Dockerfile” como estrategia de despliegue (Koyeb lo detectará en la raíz)
+   - Define `PORT=8080` en la sección de variables (opcional pero explícito)
+3. **Gestionar secretos y variables**
+   - Sube `firebase-credentials.json` como *secret* y móntalo en `/app/firebase-credentials.json`
+   - Variables recomendadas:
+     - `GOOGLE_APPLICATION_CREDENTIALS=/app/firebase-credentials.json`
+     - `FIRESTORE_DATABASE_ID=<tu_database_id>` si no usas `(default)`
+4. **Desplegar y activar auto-redeploy**
+   - Guarda para que Koyeb construya la imagen directamente desde GitHub
+   - Habilita los redeploy automáticos para cada push y tu app quedará siempre activa en el tier gratuito.
+
 ## Límites del Plan Gratuito de Firebase
 
 - **Almacenamiento**: 1 GB
@@ -237,4 +254,3 @@ Las contribuciones son bienvenidas. Si encuentras algún error o tienes sugerenc
 ## Licencia
 
 Este proyecto es de código abierto y está disponible para uso personal o comercial.
-
