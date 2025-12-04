@@ -62,7 +62,7 @@
                     <button class="tab-button {% if loop.first %}active{% endif %}"
                             onclick="openDay(event, 'day{{ day_data.day_number }}')">
                         Día {{ day_data.day_number }}
-                        <span class="tab-total">S/. {{ "%.2f"|format(day_data.day_total) }}</span>
+                        <span class="tab-total">${{ "%.2f"|format(day_data.day_total) }}</span>
                     </button>
                     {% endfor %}
                 </div>
@@ -81,7 +81,7 @@
                             <input type="text" name="name" placeholder="Nombre del ítem" required>
                             <input type="number" name="quantity" placeholder="Cantidad" min="1" value="1" required>
                             <input type="number" name="unit_price" placeholder="Precio Unitario" step="0.01" min="0.01" required>
-                            <input type="text" name="url" placeholder="URL (opcional)" class="url-input">
+                            <input type="url" name="url" placeholder="URL (opcional)" class="url-input">
                             <select name="paid_by_person_id" class="paid-by-select">
                                 <option value="">Pagado por...</option>
                                 {% for person in persons %}
@@ -113,8 +113,8 @@
                                     <tr>
                                         <td class="item-name">{{ item.name }}</td>
                                         <td class="item-quantity">{{ item.quantity }}</td>
-                                        <td class="item-unit-price">S/. {{ "%.2f"|format(item.unit_price) }}</td>
-                                        <td class="item-cost">S/. {{ "%.2f"|format(item.total_cost) }}</td>
+                                        <td class="item-unit-price">${{ "%.2f"|format(item.unit_price) }}</td>
+                                        <td class="item-cost">${{ "%.2f"|format(item.total_cost) }}</td>
                                         <td class="paid-by-cell">
                                             {% if item.paid_by_person_id %}
                                                 {% for p in persons %}
@@ -160,7 +160,7 @@
                                                     <input type="number" name="quantity" value="{{ item.quantity }}" placeholder="Cantidad" min="1" required>
                                                     <input type="number" name="unit_price" value="{{ item.unit_price }}" placeholder="P.Unit" step="0.01" min="0.01" required>
                                                     <input type="number" name="day" value="{{ item.day }}" placeholder="Día" min="1" required>
-                                                    <input type="text" name="url" value="{{ item.url }}" placeholder="URL (opcional)">
+                                                    <input type="url" name="url" value="{{ item.url }}" placeholder="URL (opcional)">
                                                     <select name="paid_by_person_id">
                                                         <option value="">Pagado por...</option>
                                                         {% for p in persons %}
@@ -185,50 +185,38 @@
                     <!-- Costos Compartidos del día -->
                     <div class="day-section">
                         <h4>🤝 Costos Compartidos</h4>
-                        <div class="shared-costs-form">
-                            <form action="{{ url_for('add_shared_cost') }}" method="POST" class="shared-cost-form">
-                                <input type="hidden" name="trip_id" value="{{ current_trip.id }}">
-                                <input type="hidden" name="day" value="{{ day_data.day_number }}">
-
-                                <div class="shared-cost-fields">
-                                    <label class="field-label" for="shared-name-{{ day_data.day_number }}">Nombre del costo</label>
-                                    <input id="shared-name-{{ day_data.day_number }}" type="text" name="name" placeholder="Ej. Transporte" required>
+                        <form action="{{ url_for('add_shared_cost') }}" method="POST" class="add-form">
+                            <input type="hidden" name="trip_id" value="{{ current_trip.id }}">
+                            <input type="hidden" name="day" value="{{ day_data.day_number }}">
+                            <input type="text" name="name" placeholder="Nombre del costo" required>
+                            <input type="number" name="cost" placeholder="Costo" step="0.01" min="0.01" required>
+                            
+                            <!-- Chips seleccionables de "Pagado por" -->
+                            <div class="paid-by-chips-container" style="flex: 1 1 100%;">
+                                <label class="paid-by-label">💳 Pagado por (selecciona una o más personas):</label>
+                                <div class="chips-wrapper">
+                                    {% for person in persons %}
+                                    <label class="chip-person" onclick="toggleChip(this)">
+                                        <input type="checkbox" name="paid_by_person_ids[]" value="{{ person.id }}">
+                                        {{ person.name }}
+                                    </label>
+                                    {% endfor %}
                                 </div>
-                                <div class="shared-cost-fields">
-                                    <label class="field-label" for="shared-amount-{{ day_data.day_number }}">Costo</label>
-                                    <input id="shared-amount-{{ day_data.day_number }}" type="number" name="cost" placeholder="0.00" step="0.01" min="0.01" required>
-                                </div>
-
-                                <div class="shared-cost-chips">
-                                    <span class="field-label">Pagado por (selecciona una o más personas)</span>
-                                    <div class="chips-wrapper">
-                                        {% for person in persons %}
-                                        <label class="chip-person" onclick="toggleChip(this)">
-                                            <input type="checkbox" name="paid_by_person_ids[]" value="{{ person.id }}">
-                                            {{ person.name }}
-                                        </label>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-
-                                <div class="shared-cost-action">
-                                    <button type="submit" class="btn btn-success">Agregar</button>
-                                </div>
-                            </form>
-                        </div>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-success">Agregar</button>
+                        </form>
 
                         {% if day_data.day_shared_costs %}
                         <div class="shared-costs-list">
                             {% for sc in day_data.day_shared_costs %}
-                            <div class="shared-cost-card" id="shared-item-{{ sc.id }}">
-                                <div class="shared-cost-card__main">
-                                    <div>
-                                        <p class="shared-cost-card__name">{{ sc.name }}</p>
-                                        <span class="shared-cost-card__amount">S/. {{ "%.2f"|format(sc.cost) }}</span>
-                                    </div>
+                            <div class="shared-cost-item" id="shared-item-{{ sc.id }}">
+                                <div class="shared-cost-info">
+                                    <span class="shared-name">{{ sc.name }}</span>
+                                    <span class="shared-cost">${{ "%.2f"|format(sc.cost) }}</span>
                                     <div class="shared-paid-by">
                                         {% if sc.paid_by_person_ids %}
-                                            <span class="paid-by-label-small">Pagado por:</span>
+                                            <span class="paid-by-label-small">💳</span>
                                             {% for person in persons %}
                                                 {% if person.id in sc.paid_by_person_ids %}
                                                     <span class="paid-by-badge">{{ person.name }}</span>
@@ -239,10 +227,10 @@
                                         {% endif %}
                                     </div>
                                 </div>
-                                <div class="shared-cost-card__actions">
+                                <div class="shared-cost-actions">
                                     <button type="button" class="btn btn-secondary btn-small" onclick="toggleEditShared({{ sc.id }})">Editar</button>
-                                    <form action="{{ url_for('remove_shared_cost', trip_id=current_trip.id, shared_cost_id=sc.id) }}" method="POST" onsubmit="return confirm('¿Eliminar este costo compartido?')">
-                                        <button type="submit" class="btn btn-danger btn-small">Eliminar</button>
+                                    <form action="{{ url_for('remove_shared_cost', trip_id=current_trip.id, shared_cost_id=sc.id) }}" method="POST" style="display: inline;">
+                                        <button type="submit" class="btn btn-danger btn-small" onclick="return confirm('¿Eliminar este costo compartido?')">Eliminar</button>
                                     </form>
                                 </div>
                             </div>
@@ -253,17 +241,21 @@
                                         <input type="text" name="name" value="{{ sc.name }}" placeholder="Nombre" required>
                                         <input type="number" name="cost" value="{{ sc.cost }}" placeholder="Costo" step="0.01" min="0.01" required>
                                         <input type="number" name="day" value="{{ sc.day }}" placeholder="Día" min="1" required>
+                                        
+                                        <!-- Chips de "Pagado por" en edición -->
                                         <div class="paid-by-chips-edit">
                                             <label class="paid-by-label">💳 Pagado por:</label>
                                             <div class="chips-wrapper">
                                                 {% for person in persons %}
                                                 <label class="chip-person {% if person.id in sc.paid_by_person_ids %}selected{% endif %}" onclick="toggleChip(this)">
-                                                    <input type="checkbox" name="paid_by_person_ids[]" value="{{ person.id }}" {% if person.id in sc.paid_by_person_ids %}checked{% endif %}>
+                                                    <input type="checkbox" name="paid_by_person_ids[]" value="{{ person.id }}"
+                                                           {% if person.id in sc.paid_by_person_ids %}checked{% endif %}>
                                                     {{ person.name }}
                                                 </label>
                                                 {% endfor %}
                                             </div>
                                         </div>
+                                        
                                         <button type="submit" class="btn btn-success btn-small">Guardar</button>
                                         <button type="button" class="btn btn-secondary btn-small" onclick="toggleEditShared({{ sc.id }})">Cancelar</button>
                                     </div>
@@ -293,16 +285,16 @@
                                 {% for person in persons %}
                                 <tr>
                                     <td>{{ person.name }}</td>
-                                    <td>S/. {{ "%.2f"|format(day_data.day_totals[person.id].items_total) }}</td>
-                                    <td>S/. {{ "%.2f"|format(day_data.day_totals[person.id].shared_total) }}</td>
-                                    <td class="day-total-cell">S/. {{ "%.2f"|format(day_data.day_totals[person.id].total) }}</td>
+                                    <td>${{ "%.2f"|format(day_data.day_totals[person.id].items_total) }}</td>
+                                    <td>${{ "%.2f"|format(day_data.day_totals[person.id].shared_total) }}</td>
+                                    <td class="day-total-cell">${{ "%.2f"|format(day_data.day_totals[person.id].total) }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
                             <tfoot>
                                 <tr>
                                     <td colspan="3"><strong>Total del Día:</strong></td>
-                                    <td class="day-grand-total">S/. {{ "%.2f"|format(day_data.day_total) }}</td>
+                                    <td class="day-grand-total">${{ "%.2f"|format(day_data.day_total) }}</td>
                                 </tr>
                             </tfoot>
                         </table>
@@ -331,16 +323,16 @@
                             {% for person in persons %}
                             <tr>
                                 <td class="person-name-cell">{{ person.name }}</td>
-                                <td class="amount-cell" id="items-{{ person.id }}">S/. {{ "%.2f"|format(totals[person.id].items_total) }}</td>
-                                <td class="amount-cell" id="shared-{{ person.id }}">S/. {{ "%.2f"|format(totals[person.id].shared_total) }}</td>
-                                <td class="total-cell" id="total-{{ person.id }}">S/. {{ "%.2f"|format(totals[person.id].total) }}</td>
+                                <td class="amount-cell" id="items-{{ person.id }}">${{ "%.2f"|format(totals[person.id].items_total) }}</td>
+                                <td class="amount-cell" id="shared-{{ person.id }}">${{ "%.2f"|format(totals[person.id].shared_total) }}</td>
+                                <td class="total-cell" id="total-{{ person.id }}">${{ "%.2f"|format(totals[person.id].total) }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
                         <tfoot>
                             <tr class="grand-total-row">
                                 <td colspan="3"><strong>Total General del Viaje:</strong></td>
-                                <td class="grand-total">S/. {{ "%.2f"|format(grand_total) }}</td>
+                                <td class="grand-total">${{ "%.2f"|format(grand_total) }}</td>
                             </tr>
                         </tfoot>
                     </table>
@@ -357,23 +349,25 @@
                         <div class="verification-details">
                             <div class="verification-item">
                                 <span class="verification-label">Total Ítems:</span>
-                                <span class="verification-value">S/. {{ "%.2f"|format(summary.total_items) }}</span>
+                                <span class="verification-value">${{ "%.2f"|format(summary.total_items) }}</span>
                             </div>
                             <div class="verification-item">
                                 <span class="verification-label">Total Compartido:</span>
-                                <span class="verification-value">S/. {{ "%.2f"|format(summary.total_shared) }}</span>
+                                <span class="verification-value">${{ "%.2f"|format(summary.total_shared) }}</span>
                             </div>
                             <div class="verification-item">
                                 <span class="verification-label">Total de Gastos:</span>
-                                <span class="verification-value total-highlight">S/. {{ "%.2f"|format(summary.grand_total) }}</span>
+                                <span class="verification-value total-highlight">${{ "%.2f"|format(summary.grand_total) }}</span>
                             </div>
                             <div class="verification-item">
                                 <span class="verification-label">Total Distribuido:</span>
-                                <span class="verification-value total-highlight">S/. {{ "%.2f"|format(summary.total_distributed) }}</span>
+                                <span class="verification-value total-highlight">${{ "%.2f"|format(summary.total_distributed) }}</span>
                             </div>
                             <div class="verification-item final">
                                 <span class="verification-label">Diferencia:</span>
-                                <span class="verification-value {% if summary.is_balanced %}balanced{% else %}unbalanced{% endif %}">S/. {{ "%.2f"|format(summary.difference) }}</span>
+                                <span class="verification-value {% if summary.is_balanced %}balanced{% else %}unbalanced{% endif %}">
+                                    ${{ "%.2f"|format(summary.difference) }}
+                                </span>
                             </div>
                             {% if summary.is_balanced %}
                             <p class="verification-message success">
@@ -381,7 +375,7 @@
                             </p>
                             {% else %}
                             <p class="verification-message error">
-                                ⚠ Hay una diferencia de S/. {{ "%.2f"|format(summary.difference) }}. Verifica los datos ingresados.
+                                ⚠ Hay una diferencia de ${{ "%.2f"|format(summary.difference) }}. Verifica los datos ingresados.
                             </p>
                             {% endif %}
                         </div>
@@ -411,17 +405,17 @@
                             {% for person in persons %}
                             <tr>
                                 <td class="person-name-cell">{{ person.name }}</td>
-                                <td class="paid-cell">S/. {{ "%.2f"|format(payments_summary[person.id].total_paid) }}</td>
-                                <td class="owes-cell">S/. {{ "%.2f"|format(payments_summary[person.id].total_owes) }}</td>
+                                <td class="paid-cell">${{ "%.2f"|format(payments_summary[person.id].total_paid) }}</td>
+                                <td class="owes-cell">${{ "%.2f"|format(payments_summary[person.id].total_owes) }}</td>
                                 <td class="balance-cell {% if payments_summary[person.id].balance > 0 %}positive{% elif payments_summary[person.id].balance < 0 %}negative{% else %}zero{% endif %}">
                                     {% if payments_summary[person.id].balance > 0 %}
-                                        <span class="balance-positive">+S/. {{ "%.2f"|format(payments_summary[person.id].balance) }}</span>
+                                        <span class="balance-positive">+${{ "%.2f"|format(payments_summary[person.id].balance) }}</span>
                                         <small class="balance-hint">Le deben</small>
                                     {% elif payments_summary[person.id].balance < 0 %}
-                                        <span class="balance-negative">-S/. {{ "%.2f"|format(payments_summary[person.id].balance|abs) }}</span>
+                                        <span class="balance-negative">-${{ "%.2f"|format(payments_summary[person.id].balance|abs) }}</span>
                                         <small class="balance-hint">Debe</small>
                                     {% else %}
-                                        <span class="balance-zero">S/. 0.00</span>
+                                        <span class="balance-zero">$0.00</span>
                                         <small class="balance-hint">A mano</small>
                                     {% endif %}
                                 </td>
@@ -433,8 +427,8 @@
                     <div class="payments-explanation">
                         <h4>💡 Cómo leer este resumen:</h4>
                         <ul>
-                            <li><strong>Pagó:</strong> Dinero que esta persona desembolsó de su bolsillo (S/.)</li>
-                            <li><strong>Debe (Consumo):</strong> Total que le corresponde pagar según su consumo (S/.)</li>
+                            <li><strong>Pagó:</strong> Dinero que esta persona desembolsó de su bolsillo</li>
+                            <li><strong>Debe (Consumo):</strong> Total que le corresponde pagar según su consumo</li>
                             <li><strong>Balance positivo (+):</strong> Esta persona pagó de más → <strong>Le deben devolver ese dinero</strong></li>
                             <li><strong>Balance negativo (-):</strong> Esta persona consumió más de lo que pagó → <strong>Debe ese dinero</strong></li>
                             <li><strong>Balance cero (A mano):</strong> Lo que pagó = Lo que consumió → No hay deuda</li>
@@ -491,7 +485,7 @@
                         } else {
                             // Para formularios con confirmación, mostrar loader solo si se confirma
                             const originalOnsubmit = form.getAttribute('onsubmit');
-                            form.setAttribute('onsubmit', originalOnsubmit.replace('return confirm', 'if (confirm') + ') { showLoader("Procesando..."); return true; } return false;';
+                            form.setAttribute('onsubmit', originalOnsubmit.replace('return confirm', 'if (confirm') + ') { showLoader("Procesando..."); return true; } return false;');
                         }
                     });
                 }
@@ -584,14 +578,14 @@
                     total: document.getElementById(`total-${personId}`)
                 };
 
-                if (cells.items) cells.items.textContent = `S/. ${amounts.items_total.toFixed(2)}`;
-                if (cells.shared) cells.shared.textContent = `S/. ${amounts.shared_total.toFixed(2)}`;
-                if (cells.total) cells.total.textContent = `S/. ${amounts.total.toFixed(2)}`;
+                if (cells.items) cells.items.textContent = `$${amounts.items_total.toFixed(2)}`;
+                if (cells.shared) cells.shared.textContent = `$${amounts.shared_total.toFixed(2)}`;
+                if (cells.total) cells.total.textContent = `$${amounts.total.toFixed(2)}`;
             }
 
             // Actualizar grand total
             const grandTotalCell = document.querySelector('.grand-total');
-            if (grandTotalCell) grandTotalCell.textContent = `S/. ${grandTotal.toFixed(2)}`;
+            if (grandTotalCell) grandTotalCell.textContent = `$${grandTotal.toFixed(2)}`;
 
             // Actualizar panel de verificación
             if (summary) {
@@ -610,7 +604,7 @@
                     if (label && value) {
                         for (const [key, val] of Object.entries(verificationValues)) {
                             if (label.textContent.includes(key)) {
-                                value.textContent = `S/. ${val.toFixed(2)}`;
+                                value.textContent = `$${val.toFixed(2)}`;
                                 if (key === 'Diferencia') {
                                     value.className = 'verification-value ' + (summary.is_balanced ? 'balanced' : 'unbalanced');
                                 }
@@ -631,7 +625,7 @@
                 document.querySelectorAll('.tab-button').forEach(btn => {
                     if (btn.textContent.includes(`Día ${day}`)) {
                         const totalSpan = btn.querySelector('.tab-total');
-                        if (totalSpan) totalSpan.textContent = `S/. ${dayData.day_total.toFixed(2)}`;
+                        if (totalSpan) totalSpan.textContent = `$${dayData.day_total.toFixed(2)}`;
                     }
                 });
 
@@ -646,9 +640,9 @@
                             if (rows[idx]) {
                                 const cells = rows[idx].querySelectorAll('td');
                                 if (cells.length >= 4) {
-                                    cells[1].textContent = `S/. ${amounts.items_total.toFixed(2)}`;
-                                    cells[2].textContent = `S/. ${amounts.shared_total.toFixed(2)}`;
-                                    cells[3].textContent = `S/. ${amounts.total.toFixed(2)}`;
+                                    cells[1].textContent = `$${amounts.items_total.toFixed(2)}`;
+                                    cells[2].textContent = `$${amounts.shared_total.toFixed(2)}`;
+                                    cells[3].textContent = `$${amounts.total.toFixed(2)}`;
                                 }
                             }
                             idx++;
@@ -657,7 +651,7 @@
 
                     // Actualizar total del día en footer
                     const footer = dayContent.querySelector('.day-grand-total');
-                    if (footer) footer.textContent = `S/. ${dayData.day_total.toFixed(2)}`;
+                    if (footer) footer.textContent = `$${dayData.day_total.toFixed(2)}`;
                 }
             }
         }
