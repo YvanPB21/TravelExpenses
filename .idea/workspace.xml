@@ -4,9 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="63bd1a63-815d-47a9-9e63-ea284e6542b9" name="Changes" comment="Refactor shared costs handling to be general for the entire trip; remove day association and update related calculations and templates for improved clarity and functionality">
+    <list default="true" id="63bd1a63-815d-47a9-9e63-ea284e6542b9" name="Changes" comment="Remove actions section from trip detail page to streamline interface">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/style.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/trip_detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/trip_detail.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -184,7 +185,23 @@
       <option name="project" value="LOCAL" />
       <updated>1764861090267</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="Implement automatic uppercase conversion for names in trip management; add refresh button for balance verification">
+      <option name="closed" value="true" />
+      <created>1764864148428</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1764864148428</updated>
+    </task>
+    <task id="LOCAL-00015" summary="Remove actions section from trip detail page to streamline interface">
+      <option name="closed" value="true" />
+      <created>1764865318759</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1764865318759</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -202,7 +219,9 @@
     <MESSAGE value="Fix database ID assignment to use a hardcoded value for Firestore" />
     <MESSAGE value="Refactor Flask server startup to use environment variables for port and debug mode; update README with Koyeb deployment instructions" />
     <MESSAGE value="Refactor shared costs handling to be general for the entire trip; remove day association and update related calculations and templates for improved clarity and functionality" />
-    <option name="LAST_COMMIT_MESSAGE" value="Refactor shared costs handling to be general for the entire trip; remove day association and update related calculations and templates for improved clarity and functionality" />
+    <MESSAGE value="Implement automatic uppercase conversion for names in trip management; add refresh button for balance verification" />
+    <MESSAGE value="Remove actions section from trip detail page to streamline interface" />
+    <option name="LAST_COMMIT_MESSAGE" value="Remove actions section from trip detail page to streamline interface" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/split_bill$database.coverage" NAME="database Coverage Results" MODIFIED="1764628666901" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />

@@ -212,7 +212,12 @@
                                 <tbody>
                                     {% for item in day_data.day_items %}
                                     <tr class="item-row">
-                                        <td class="item-name">{{ item.name }}</td>
+                                        <td class="item-name">
+                                            {{ item.name }}
+                                            <span class="item-person-counter" title="{{ item.person_ids|length }} de {{ persons|length }} personas">
+                                                ({{ item.person_ids|length }}/{{ persons|length }})
+                                            </span>
+                                        </td>
                                         <td class="item-quantity">{{ item.quantity }}</td>
                                         <td class="item-unit-price">S/. {{ "%.2f"|format(item.unit_price) }}</td>
                                         <td class="item-cost">S/. {{ "%.2f"|format(item.total_cost) }}</td>
@@ -595,6 +600,9 @@
                 if (response.ok) {
                     const data = await response.json();
                     if (data.success) {
+                        // Actualizar contador de personas para este item
+                        updateItemPersonCounter(itemId);
+
                         // Actualizar resumen general
                         updateGeneralSummary(data.totals, data.grand_total, data.summary);
 
@@ -706,6 +714,32 @@
                     // Actualizar total del día en footer
                     const footer = dayContent.querySelector('.day-grand-total');
                     if (footer) footer.textContent = `S/. ${dayData.day_total.toFixed(2)}`;
+                }
+            }
+        }
+
+        // Actualizar contador de personas para un item específico
+        function updateItemPersonCounter(itemId) {
+            // Buscar todos los checkboxes para este item
+            const checkboxes = document.querySelectorAll(`input.person-checkbox[data-item-id="${itemId}"]`);
+
+            // Contar cuántos están marcados
+            let checkedCount = 0;
+            let totalCount = checkboxes.length;
+
+            checkboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    checkedCount++;
+                }
+            });
+
+            // Buscar el contador en la fila del item
+            const itemRow = checkboxes[0]?.closest('tr');
+            if (itemRow) {
+                const counter = itemRow.querySelector('.item-person-counter');
+                if (counter) {
+                    counter.textContent = `(${checkedCount}/${totalCount})`;
+                    counter.title = `${checkedCount} de ${totalCount} personas`;
                 }
             }
         }

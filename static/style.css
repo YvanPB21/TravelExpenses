@@ -452,6 +452,19 @@ header p {
     min-width: 150px;
 }
 
+.item-person-counter {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 2px 8px;
+    background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+    color: var(--secondary-color);
+    border-radius: 12px;
+    font-size: 0.75em;
+    font-weight: 700;
+    border: 1px solid #90caf9;
+    white-space: nowrap;
+}
+
 .item-quantity {
     text-align: center;
     font-weight: 600;
@@ -1089,6 +1102,108 @@ header p {
     padding: 20px;
 }
 
+/* Página de Trips - Lista de Viajes */
+.trip-create-card {
+    background: linear-gradient(135deg, #fff, #e8f5e9);
+    border: 2px solid var(--primary-color);
+}
+
+.trip-form {
+    display: grid;
+    grid-template-columns: 2fr 1fr 2fr auto;
+    gap: 10px;
+    align-items: center;
+}
+
+.days-input {
+    min-width: 80px;
+}
+
+.description-input {
+    min-width: 200px;
+}
+
+.trips-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.trip-card {
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 20px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.trip-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    border-color: var(--primary-color);
+}
+
+.trip-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+    gap: 10px;
+}
+
+.trip-header h3 {
+    margin: 0;
+    color: var(--primary-color);
+    font-size: 1.3em;
+    flex: 1;
+}
+
+.trip-date {
+    background: #e0e0e0;
+    color: var(--text-dark);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.85em;
+    white-space: nowrap;
+}
+
+.trip-info {
+    margin-bottom: 12px;
+}
+
+.trip-days {
+    display: inline-block;
+    background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+    color: var(--secondary-color);
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.9em;
+    font-weight: 600;
+}
+
+.trip-description {
+    color: var(--text-light);
+    font-size: 0.95em;
+    margin: 12px 0;
+    line-height: 1.5;
+}
+
+.trip-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    flex-wrap: wrap;
+}
+
+.trip-actions .btn {
+    flex: 1;
+    min-width: 120px;
+    text-align: center;
+    text-decoration: none;
+}
+
 /* Sistema de Pestañas */
 .tabs {
     display: flex;
@@ -1595,9 +1710,95 @@ header p {
 
 /* Responsive */
 @media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+
+    .container {
+        padding: 0;
+    }
+
+    header {
+        padding: 20px 15px;
+        margin-bottom: 20px;
+    }
+
     header h1 {
         font-size: 1.8em;
     }
+
+    header p {
+        font-size: 0.95em;
+    }
+
+    .trip-info-header {
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .trip-date-header,
+    .trip-days-header {
+        font-size: 0.85em;
+        padding: 5px 10px;
+    }
+
+    .card {
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+
+    .card h2 {
+        font-size: 1.3em;
+        margin-bottom: 15px;
+    }
+
+    /* Trips page responsive */
+    .trip-form {
+        grid-template-columns: 1fr;
+    }
+
+    .days-input,
+    .description-input {
+        width: 100%;
+    }
+
+    .trips-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .trip-card {
+        padding: 15px;
+    }
+
+    .trip-header h3 {
+        font-size: 1.1em;
+    }
+
+    .trip-date {
+        font-size: 0.75em;
+        padding: 3px 8px;
+    }
+
+    .trip-days {
+        font-size: 0.85em;
+        padding: 3px 10px;
+    }
+
+    .trip-description {
+        font-size: 0.9em;
+    }
+
+    .trip-actions {
+        flex-direction: column;
+    }
+
+    .trip-actions .btn {
+        width: 100%;
+        min-width: auto;
+    }
+
+    /* Forms responsive */
 
     .add-form {
         flex-direction: column;
@@ -1893,6 +2094,74 @@ header p {
 
     .item-row:hover {
         transform: none;
+    }
+
+    .item-person-counter {
+        font-size: 0.7em;
+        padding: 1px 6px;
+        margin-left: 4px;
+    }
+
+    /* Breadcrumb responsive */
+    .breadcrumb a {
+        padding: 6px 12px;
+        font-size: 0.9em;
+    }
+
+    /* Tabs responsive */
+    .tabs {
+        gap: 3px;
+    }
+
+    .tab-button {
+        padding: 10px 15px;
+        font-size: 0.85em;
+    }
+
+    .tab-total {
+        font-size: 0.8em;
+    }
+
+    /* Day section responsive */
+    .day-section {
+        padding: 15px;
+    }
+
+    .day-section h4 {
+        font-size: 1.1em;
+    }
+
+    /* Day summary responsive */
+    .day-summary {
+        padding: 15px;
+    }
+
+    .day-totals-table {
+        font-size: 0.85em;
+    }
+
+    .day-totals-table th,
+    .day-totals-table td {
+        padding: 8px 6px;
+    }
+
+    /* Actions section responsive */
+    .actions-section {
+        margin-top: 20px;
+    }
+
+    /* Loader responsive */
+    .loader-container {
+        padding: 20px 30px;
+    }
+
+    .loader-spinner {
+        width: 40px;
+        height: 40px;
+    }
+
+    .loader-text {
+        font-size: 1em;
     }
 }
 
